@@ -35,9 +35,9 @@ opencc_t2s = OpenCC("t2s")
 
 
 def get_logger(path, level=logging.ERROR, init=False):
-    """
-    get the logger
-    """
+"""
+[PT-BR]     get the logger
+"""
     dir_name = os.path.dirname(path) or "."
     os.makedirs(dir_name, exist_ok=True)
     os.makedirs(constants.output_dir, exist_ok=True)
@@ -90,18 +90,27 @@ def get_logger(path, level=logging.ERROR, init=False):
 
 
 def format_interval(t):
-    """
-    Formats a number of seconds as a clock time, [H:]MM:SS
+"""
+[PT-BR]     Formats a number of seconds as a clock time, [H:]MM:SS
 
-    Parameters
-    ----------
-    t  : int or float
-        Number of seconds.
-    Returns
-    -------
-    out  : str
-        [H:]MM:SS
-    """
+
+
+[PT-BR]     Parameters
+
+[PT-BR]     ----------
+
+[PT-BR]     t  : int or float
+
+[PT-BR]         Number of seconds.
+
+[PT-BR]     Returns
+
+[PT-BR]     -------
+
+[PT-BR]     out  : str
+
+[PT-BR]         [H:]MM:SS
+"""
     mins, s = divmod(int(t), 60)
     h, m = divmod(mins, 60)
     if h:
@@ -111,9 +120,9 @@ def format_interval(t):
 
 
 def get_pbar_remaining(n=0, total=0, start_time=None):
-    """
-    Get the remaining time of the progress bar
-    """
+"""
+[PT-BR]     Get the remaining time of the progress bar
+"""
     try:
         elapsed = time() - start_time
         completed_tasks = n
@@ -129,9 +138,9 @@ def get_pbar_remaining(n=0, total=0, start_time=None):
 
 
 def update_file(final_file, old_file, copy=False):
-    """
-    Update the file
-    """
+"""
+[PT-BR]     Update the file
+"""
     old_file_path = resource_path(old_file, persistent=True)
     final_file_path = resource_path(final_file, persistent=True)
     if os.path.exists(old_file_path):
@@ -142,9 +151,9 @@ def update_file(final_file, old_file, copy=False):
 
 
 def filter_by_date(data):
-    """
-    Filter by date and limit
-    """
+"""
+[PT-BR]     Filter by date and limit
+"""
     default_recent_days = 30
     use_recent_days = config.recent_days
     if not isinstance(use_recent_days, int) or use_recent_days <= 0:
@@ -172,9 +181,9 @@ def filter_by_date(data):
 
 
 def get_soup(source):
-    """
-    Get soup from source
-    """
+"""
+[PT-BR]     Get soup from source
+"""
     source = re.sub(
         r"<!--.*?-->",
         "",
@@ -186,9 +195,9 @@ def get_soup(source):
 
 
 def get_resolution_value(resolution_str):
-    """
-    Get resolution value from string
-    """
+"""
+[PT-BR]     Get resolution value from string
+"""
     try:
         if resolution_str:
             pattern = r"(\d+)[xX*](\d+)"
@@ -287,9 +296,9 @@ def get_total_urls(
 
 
 def get_total_urls_from_sorted_data(data):
-    """
-    Get the total urls with filter by date and duplicate from sorted data
-    """
+"""
+[PT-BR]     Get the total urls with filter by date and duplicate from sorted data
+"""
     if len(data) > config.output_urls_limit:
         total_urls = [channel_data["url"] for channel_data, _ in filter_by_date(data)]
     else:
@@ -298,9 +307,9 @@ def get_total_urls_from_sorted_data(data):
 
 
 def check_ipv6_support():
-    """
-    Check if the system network supports ipv6
-    """
+"""
+[PT-BR]     Check if the system network supports ipv6
+"""
     if os.getenv("GITHUB_ACTIONS"):
         return False
     url = "https://ipv6.tokyo.test-ipv6.com/ip/?callback=?&testdomain=test-ipv6.com&testname=test_aaaa"
@@ -317,17 +326,17 @@ def check_ipv6_support():
 
 
 def check_ipv_type_match(ipv_type: str) -> bool:
-    """
-    Check if the ipv type matches
-    """
+"""
+[PT-BR]     Check if the ipv type matches
+"""
     config_ipv_type = config.ipv_type
     return config_ipv_type == ipv_type or config_ipv_type == "all"
 
 
 def check_url_by_keywords(url, keywords=None):
-    """
-    Check by URL keywords
-    """
+"""
+[PT-BR]     Check by URL keywords
+"""
     if not keywords:
         return False
     else:
@@ -335,18 +344,22 @@ def check_url_by_keywords(url, keywords=None):
 
 
 def merge_objects(*objects, match_key=None):
-    """
-    Merge objects while preserving defaultdict types (including default_factory).
-    Args:
-        *objects: Dictionaries to merge
-        match_key: If dict1[key] is a list of dicts, this key will be used to match and merge dicts
-    """
+"""
+[PT-BR]     Merge objects while preserving defaultdict types (including default_factory).
+
+[PT-BR]     Args:
+
+[PT-BR]         *objects: Dictionaries to merge
+
+[PT-BR]         match_key: If dict1[key] is a list of dicts, this key will be used to match and merge dicts
+"""
 
     def clone_empty(value):
-        """
-        Return an empty container of the same *container* type as value,
-        preserving defaultdict default_factory when applicable.
-        """
+"""
+[PT-BR]         Return an empty container of the same *container* type as value,
+
+[PT-BR]         preserving defaultdict default_factory when applicable.
+"""
         if isinstance(value, defaultdict):
             return defaultdict(value.default_factory)
         if isinstance(value, dict):
@@ -419,9 +432,9 @@ def get_public_url(port: int | None = None) -> str:
 
 
 def get_epg_url():
-    """
-    Get the epg result url
-    """
+"""
+[PT-BR]     Get the epg result url
+"""
     artifact_base_url = os.getenv("IPTV_API_ARTIFACT_BASE_URL", "").strip()
     if artifact_base_url:
         return f"{artifact_base_url.rstrip('/')}/epg.gz"
@@ -434,9 +447,9 @@ def get_epg_url():
 
 
 def get_logo_url():
-    """
-    Get the logo url
-    """
+"""
+[PT-BR]     Get the logo url
+"""
     logo_url = join_url(config.cdn_url,
                         config.logo_url) if "raw.githubusercontent.com" in config.logo_url else config.logo_url
     if not logo_url:
@@ -445,9 +458,9 @@ def get_logo_url():
 
 
 def get_channel_epg_id(name: str | None) -> str:
-    """
-    Get a stable channel id shared by generated M3U tvg-id and EPG channel id.
-    """
+"""
+[PT-BR]     Get a stable channel id shared by generated M3U tvg-id and EPG channel id.
+"""
     if not name:
         return ""
 
@@ -457,9 +470,9 @@ def get_channel_epg_id(name: str | None) -> str:
 
 
 def convert_to_m3u(path=None, first_channel_name=None, data=None, content=None):
-    """
-    Convert result txt to m3u format
-    """
+"""
+[PT-BR]     Convert result txt to m3u format
+"""
     if content is not None or os.path.exists(path):
         source = io.StringIO(content) if content is not None else open(path, "r", encoding="utf-8")
         with source as file:
@@ -531,9 +544,9 @@ def convert_to_m3u(path=None, first_channel_name=None, data=None, content=None):
 
 
 def get_result_file_content(path=None, show_content=False, file_type=None):
-    """
-    Get the content of the result file
-    """
+"""
+[PT-BR]     Get the content of the result file
+"""
     requested_type = file_type.lower() if isinstance(file_type, str) else file_type
     if requested_type is None and config.open_m3u_result:
         requested_type = "m3u"
@@ -578,9 +591,9 @@ def get_result_file_content(path=None, show_content=False, file_type=None):
 
 
 def remove_duplicates_from_list(data_list, seen, filter_host=False, ipv6_support=True):
-    """
-    Remove duplicates from data list
-    """
+"""
+[PT-BR]     Remove duplicates from data list
+"""
     unique_list = []
     for item in data_list:
         if item["origin"] in ["whitelist", "hls"]:
@@ -599,9 +612,9 @@ def remove_duplicates_from_list(data_list, seen, filter_host=False, ipv6_support
 
 
 def process_nested_dict(data, seen, filter_host=False, ipv6_support=True):
-    """
-    Process nested dict
-    """
+"""
+[PT-BR]     Process nested dict
+"""
     for key, value in data.items():
         if isinstance(value, dict):
             process_nested_dict(value, seen, filter_host, ipv6_support)
@@ -610,9 +623,9 @@ def process_nested_dict(data, seen, filter_host=False, ipv6_support=True):
 
 
 def get_url_host(url):
-    """
-    Get the url host
-    """
+"""
+[PT-BR]     Get the url host
+"""
     matcher = constants.url_host_pattern.search(url)
     if matcher:
         return matcher.group()
@@ -620,9 +633,9 @@ def get_url_host(url):
 
 
 def add_url_info(url, info):
-    """
-    Add url info to the URL
-    """
+"""
+[PT-BR]     Add url info to the URL
+"""
     if info:
         separator = "-" if "$" in url else "$"
         url += f"{separator}{info}"
@@ -630,24 +643,24 @@ def add_url_info(url, info):
 
 
 def format_url_with_cache(url, cache=None):
-    """
-    Format the URL with cache
-    """
+"""
+[PT-BR]     Format the URL with cache
+"""
     cache = cache or get_url_host(url) or ""
     return add_url_info(url, f"cache:{cache}") if cache else url
 
 
 def remove_cache_info(string):
-    """
-    Remove the cache info from the string
-    """
+"""
+[PT-BR]     Remove the cache info from the string
+"""
     return re.sub(r"[.*]?\$?-?cache:.*", "", string)
 
 
 def write_content_into_txt(content, path=None, position=None, callback=None):
-    """
-    Write content into txt file
-    """
+"""
+[PT-BR]     Write content into txt file
+"""
     if not path:
         return
 
@@ -665,9 +678,9 @@ def write_content_into_txt(content, path=None, position=None, callback=None):
 
 
 def format_name(name: str) -> str:
-    """
-    Format the  name with sub and replace and lower
-    """
+"""
+[PT-BR]     Format the  name with sub and replace and lower
+"""
     name = opencc_t2s.convert(name)
     name = constants.sub_pattern.sub("", name)
     for old, new in constants.replace_dict.items():
@@ -676,9 +689,9 @@ def format_name(name: str) -> str:
 
 
 def get_headers_key_value(content: str) -> dict:
-    """
-    Get the headers key value from content
-    """
+"""
+[PT-BR]     Get the headers key value from content
+"""
     key_value = {}
     for match in constants.key_value_pattern.finditer(content):
         key = match.group("key").strip().replace("http-", "").replace("-", "").lower()
@@ -691,9 +704,9 @@ def get_headers_key_value(content: str) -> dict:
 
 
 def get_m3u_epg_urls(content: str) -> list[str]:
-    """
-    Extract EPG urls declared in the m3u #EXTM3U header (url-tvg / x-tvg-url).
-    """
+"""
+[PT-BR]     Extract EPG urls declared in the m3u #EXTM3U header (url-tvg / x-tvg-url).
+"""
     urls = []
     for line in content.splitlines():
         stripped = line.strip()
@@ -710,13 +723,17 @@ def get_m3u_epg_urls(content: str) -> list[str]:
 
 
 def get_name_value(content, pattern, open_headers=False, check_value=True):
-    """
-    Extract name and value from content using a regex pattern.
-    :param content: str, the input content to search.
-    :param pattern: re.Pattern, the compiled regex pattern to match.
-    :param open_headers: bool, whether to extract headers.
-    :param check_value: bool, whether to validate the presence of a URL.
-    """
+"""
+[PT-BR]     Extract name and value from content using a regex pattern.
+
+[PT-BR]     :param content: str, the input content to search.
+
+[PT-BR]     :param pattern: re.Pattern, the compiled regex pattern to match.
+
+[PT-BR]     :param open_headers: bool, whether to extract headers.
+
+[PT-BR]     :param check_value: bool, whether to validate the presence of a URL.
+"""
     result = []
 
     def append_item(name, value, attributes):
@@ -820,9 +837,9 @@ def get_name_value(content, pattern, open_headers=False, check_value=True):
 
 
 def get_real_path(path) -> str:
-    """
-    Get the real path
-    """
+"""
+[PT-BR]     Get the real path
+"""
     dir_path, file = os.path.split(path)
     user_real_path = os.path.join(dir_path, 'user_' + file)
     real_path = user_real_path if os.path.exists(user_real_path) else path
@@ -830,9 +847,9 @@ def get_real_path(path) -> str:
 
 
 def get_urls_from_file(path: str, pattern_search: bool = True) -> list:
-    """
-    Get the urls from file
-    """
+"""
+[PT-BR]     Get the urls from file
+"""
     real_path = get_real_path(resource_path(path))
     urls = []
     if os.path.exists(real_path):
@@ -851,11 +868,13 @@ def get_urls_from_file(path: str, pattern_search: bool = True) -> list:
 
 
 def get_name_urls_from_file(path: str | list, format_name_flag: bool = False) -> dict[str, list]:
-    """
-    Get the name and urls from file or list of files.
-    - path: single file path or list of file paths.
-    - format_name_flag: whether to format the channel name.
-    """
+"""
+[PT-BR]     Get the name and urls from file or list of files.
+
+[PT-BR]     - path: single file path or list of file paths.
+
+[PT-BR]     - format_name_flag: whether to format the channel name.
+"""
     paths = path if isinstance(path, (list, tuple)) else [path]
     name_urls = defaultdict(list)
 
@@ -899,9 +918,9 @@ def get_name_urls_from_file(path: str | list, format_name_flag: bool = False) ->
 
 
 def get_name_uri_from_dir(path: str) -> dict:
-    """
-    Get the name and uri from dir, only from file name
-    """
+"""
+[PT-BR]     Get the name and uri from dir, only from file name
+"""
     real_path = get_real_path(resource_path(path))
     name_urls = defaultdict(list)
     if os.path.exists(real_path):
@@ -915,29 +934,32 @@ def get_name_uri_from_dir(path: str) -> dict:
 
 
 def get_datetime_now():
-    """
-    Get the datetime now
-    """
+"""
+[PT-BR]     Get the datetime now
+"""
     now = datetime.datetime.now()
     time_zone = pytz.timezone(config.time_zone)
     return now.astimezone(time_zone).strftime("%Y-%m-%d %H:%M:%S")
 
 
 def get_version_info():
-    """
-    Get the version info
-    """
+"""
+[PT-BR]     Get the version info
+"""
     with open(resource_path("version.json"), "r", encoding="utf-8") as f:
         return json.load(f)
 
 
 def join_url(url1: str, url2: str) -> str:
-    """
-    Get the join url
-    :param url1: The first url
-    :param url2: The second url
-    :return: The join url
-    """
+"""
+[PT-BR]     Get the join url
+
+[PT-BR]     :param url1: The first url
+
+[PT-BR]     :param url2: The second url
+
+[PT-BR]     :return: The join url
+"""
     if not url1:
         return url2
     if not url2:
@@ -948,11 +970,13 @@ def join_url(url1: str, url2: str) -> str:
 
 
 def github_blob_to_raw(url: str) -> str:
-    """
-    Convert a GitHub repository blob (or tree) page URL to the corresponding
-    raw.githubusercontent.com URL. Handles percent-encoded path segments and
-    decodes them before safely re-quoting the path for the raw URL.
-    """
+"""
+[PT-BR]     Convert a GitHub repository blob (or tree) page URL to the corresponding
+
+[PT-BR]     raw.githubusercontent.com URL. Handles percent-encoded path segments and
+
+[PT-BR]     decodes them before safely re-quoting the path for the raw URL.
+"""
 
     if not url:
         return url
@@ -987,12 +1011,15 @@ def github_blob_to_raw(url: str) -> str:
 
 
 def get_request_url_candidates(url: str) -> List[str]:
-    """
-    Build the ordered list of candidate request urls for a source url. For
-    raw.githubusercontent.com urls every configured CDN mirror in
-    config.cdn_urls is prefixed in order so a failed mirror can fall back to
-    the next one; other urls return themselves. CDN is skipped under GitHub Actions.
-    """
+"""
+[PT-BR]     Build the ordered list of candidate request urls for a source url. For
+
+[PT-BR]     raw.githubusercontent.com urls every configured CDN mirror in
+
+[PT-BR]     config.cdn_urls is prefixed in order so a failed mirror can fall back to
+
+[PT-BR]     the next one; other urls return themselves. CDN is skipped under GitHub Actions.
+"""
     if not os.getenv("GITHUB_ACTIONS") and config.cdn_urls:
         raw_url = github_blob_to_raw(url)
         if "raw.githubusercontent.com" in raw_url:
@@ -1002,10 +1029,11 @@ def get_request_url_candidates(url: str) -> List[str]:
 
 
 def request_first(candidates: List[str], fetch):
-    """
-    Try fetch(url) for each candidate url in order, returning the first
-    successful result; raise the last error if every candidate fails.
-    """
+"""
+[PT-BR]     Try fetch(url) for each candidate url in order, returning the first
+
+[PT-BR]     successful result; raise the last error if every candidate fails.
+"""
     last_error = None
     for url in candidates:
         try:
@@ -1018,9 +1046,9 @@ def request_first(candidates: List[str], fetch):
 
 
 def add_port_to_url(url: str, port: int) -> str:
-    """
-    Add port to the url
-    """
+"""
+[PT-BR]     Add port to the url
+"""
     parsed = urlparse(url)
     netloc = parsed.netloc
     if parsed.username and parsed.password:
@@ -1039,20 +1067,23 @@ def add_port_to_url(url: str, port: int) -> str:
 
 
 def get_url_without_scheme(url: str) -> str:
-    """
-    Get the url without scheme
-    """
+"""
+[PT-BR]     Get the url without scheme
+"""
     parsed = urlparse(url)
     return parsed.netloc + parsed.path
 
 
 def find_by_id(data: dict, id: int) -> dict:
-    """
-    Find the nested dict by id
-    :param data: target data
-    :param id: target id
-    :return: target dict
-    """
+"""
+[PT-BR]     Find the nested dict by id
+
+[PT-BR]     :param data: target data
+
+[PT-BR]     :param id: target id
+
+[PT-BR]     :return: target dict
+"""
     if isinstance(data, dict) and 'id' in data and data['id'] == id:
         return data
     for key, value in data.items():
@@ -1070,18 +1101,18 @@ def find_by_id(data: dict, id: int) -> dict:
 
 
 def custom_print(*args, **kwargs):
-    """
-    Custom print
-    """
+"""
+[PT-BR]     Custom print
+"""
     if not custom_print.disable:
         kwargs.setdefault("flush", True)
         print(*args, **kwargs)
 
 
 def get_urls_len(data) -> int:
-    """
-    Get the dict urls length
-    """
+"""
+[PT-BR]     Get the dict urls length
+"""
     urls = set(
         url_info["url"]
         for value in data.values()
@@ -1092,9 +1123,9 @@ def get_urls_len(data) -> int:
 
 
 def render_nginx_conf(nginx_conf_template, nginx_conf, replacements=None):
-    """
-    Render the nginx conf file
-    """
+"""
+[PT-BR]     Render the nginx conf file
+"""
 
     with open(nginx_conf_template, 'r', encoding='utf-8') as f:
         content = f.read()
@@ -1110,9 +1141,9 @@ def render_nginx_conf(nginx_conf_template, nginx_conf, replacements=None):
 
 
 def parse_times(times_str: str):
-    """
-    Parse times from a string in the format "HH:MM, HH:MM, ..."
-    """
+"""
+[PT-BR]     Parse times from a string in the format "HH:MM, HH:MM, ..."
+"""
     times = []
     for part in (times_str or "").split(","):
         part = part.strip()
@@ -1166,11 +1197,13 @@ def build_path_list(
 
 
 def to_serializable(obj):
-    """
-    Convert an object to a serializable form.
-    Handles dicts, lists, tuples, sets, and other iterables recursively.
-    Non-serializable objects are returned as-is.
-    """
+"""
+[PT-BR]     Convert an object to a serializable form.
+
+[PT-BR]     Handles dicts, lists, tuples, sets, and other iterables recursively.
+
+[PT-BR]     Non-serializable objects are returned as-is.
+"""
     if isinstance(obj, dict):
         return {k: to_serializable(v) for k, v in obj.items()}
     if isinstance(obj, (list, tuple, set)):
@@ -1222,9 +1255,9 @@ def count_files_by_ext(
 
 
 def sanitize_filename_from_url(url: str, max_len: int = 200) -> str:
-    """
-    Create a filesystem-safe filename from a URL. Limits length and falls back to a hash when needed.
-    """
+"""
+[PT-BR]     Create a filesystem-safe filename from a URL. Limits length and falls back to a hash when needed.
+"""
     try:
         if not url:
             raise ValueError("empty url")
@@ -1245,10 +1278,11 @@ def sanitize_filename_from_url(url: str, max_len: int = 200) -> str:
 
 
 def save_url_content(category: str, url: str, content: str) -> None:
-    """
-    Save the raw content fetched from `url` into output/log/<category>/<sanitized_url>.txt.
-    Overwrites existing files when called multiple times for the same url.
-    """
+"""
+[PT-BR]     Save the raw content fetched from `url` into output/log/<category>/<sanitized_url>.txt.
+
+[PT-BR]     Overwrites existing files when called multiple times for the same url.
+"""
     try:
         if not category:
             category = "misc"
@@ -1269,14 +1303,19 @@ def save_url_content(category: str, url: str, content: str) -> None:
 
 
 def get_subscribe_entries(path: str = "config/subscribe.txt") -> tuple[list, list]:
-    """
-    Parse the subscribe file and return two lists of entries (inside [WHITELIST], outside).
-    Each entry is a dict: {"url": <url>, "headers": {<Header-Name>: <value>, ...}} where headers is optional.
+"""
+[PT-BR]     Parse the subscribe file and return two lists of entries (inside [WHITELIST], outside).
 
-    Supported line format (simple):
-        <url> KEY=VALUE KEY2="value with spaces" KEY3='another'
-    KEY `UA` or `User-Agent` will be mapped to the `User-Agent` header.
-    """
+[PT-BR]     Each entry is a dict: {"url": <url>, "headers": {<Header-Name>: <value>, ...}} where headers is optional.
+
+
+
+[PT-BR]     Supported line format (simple):
+
+[PT-BR]         <url> KEY=VALUE KEY2="value with spaces" KEY3='another'
+
+[PT-BR]     KEY `UA` or `User-Agent` will be mapped to the `User-Agent` header.
+"""
     real_path = get_real_path(resource_path(path))
     inside = []
     outside = []
@@ -1337,9 +1376,9 @@ def get_subscribe_entries(path: str = "config/subscribe.txt") -> tuple[list, lis
 
 
 def count_disabled_urls(path: str) -> int:
-    """
-    Count disabled url lines in the config file.
-    """
+"""
+[PT-BR]     Count disabled url lines in the config file.
+"""
     real_path = get_real_path(resource_path(path))
     if not os.path.exists(real_path):
         return 0
@@ -1357,11 +1396,13 @@ def count_disabled_urls(path: str) -> int:
 
 
 def disable_urls_in_file(path: str, urls: Iterable[str]) -> dict[str, int]:
-    """
-    Comment out matching url lines in the config file and return counts.
-    Returns: {"disabled": <disabled_count>, "active": <active_count>}
-    Disabled urls are moved after active urls within the same section, separated by one blank line.
-    """
+"""
+[PT-BR]     Comment out matching url lines in the config file and return counts.
+
+[PT-BR]     Returns: {"disabled": <disabled_count>, "active": <active_count>}
+
+[PT-BR]     Disabled urls are moved after active urls within the same section, separated by one blank line.
+"""
     target_urls = {url.strip() for url in urls if url and str(url).strip()}
     if not target_urls:
         return {"disabled": 0, "active": 0}
@@ -1481,9 +1522,9 @@ def close_logger_handlers(logger) -> None:
 
 
 def fast_get_ipv_type(host: str | None) -> str | None:
-    """
-    Infer the IPv type from a host string without DNS resolution.
-    """
+"""
+[PT-BR]     Infer the IPv type from a host string without DNS resolution.
+"""
     if not host:
         return None
 

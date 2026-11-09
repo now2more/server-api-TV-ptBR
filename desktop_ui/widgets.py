@@ -9,16 +9,23 @@ from utils.i18n import t
 
 
 def apply_dialog_theme(dialog):
-    """Apply the application's light or dark surface colors to a native dialog."""
-    dark = isDarkTheme()
-    background = "#202020" if dark else "#FFFFFF"
-    surface = "#27272A" if dark else "#F8FAFC"
-    foreground = "#E2E8F0" if dark else "#1F2937"
-    muted = "#CBD5E1" if dark else "#475569"
-    border = "#3F3F46" if dark else "#E2E8F0"
-    hover = "#323232" if dark else "#E2E8F0"
-    dialog.setStyleSheet(
-        f"""
+"""
+[PT-BR]     dark = isDarkTheme()
+
+[PT-BR]     background = "#202020" if dark else "#FFFFFF"
+
+[PT-BR]     surface = "#27272A" if dark else "#F8FAFC"
+
+[PT-BR]     foreground = "#E2E8F0" if dark else "#1F2937"
+
+[PT-BR]     muted = "#CBD5E1" if dark else "#475569"
+
+[PT-BR]     border = "#3F3F46" if dark else "#E2E8F0"
+
+[PT-BR]     hover = "#323232" if dark else "#E2E8F0"
+
+[PT-BR]     dialog.setStyleSheet(
+"""
         QDialog {{ background-color: {background}; color: {foreground}; }}
         QLabel {{ color: {foreground}; }}
         QLineEdit, QPlainTextEdit, QTextEdit, QComboBox {{
@@ -35,79 +42,149 @@ def apply_dialog_theme(dialog):
 
 
 def localize_dialog_buttons(buttons):
-    """Use application translations instead of platform defaults for standard buttons."""
-    labels = {
-        QDialogButtonBox.StandardButton.Save: "desktop.save",
-        QDialogButtonBox.StandardButton.Cancel: "desktop.cancel",
-        QDialogButtonBox.StandardButton.Close: "desktop.close",
-        QDialogButtonBox.StandardButton.Ok: "desktop.confirm",
-        QDialogButtonBox.StandardButton.Yes: "desktop.yes",
-        QDialogButtonBox.StandardButton.No: "desktop.no",
-    }
-    for standard, key in labels.items():
-        try:
-            button = buttons.button(standard)
-        except TypeError:
-            button = buttons.button(type(buttons).StandardButton(standard.value))
-        if button:
-            button.setText(t(key))
+"""
+[PT-BR]     labels = {
+
+[PT-BR]         QDialogButtonBox.StandardButton.Save: "desktop.save",
+
+[PT-BR]         QDialogButtonBox.StandardButton.Cancel: "desktop.cancel",
+
+[PT-BR]         QDialogButtonBox.StandardButton.Close: "desktop.close",
+
+[PT-BR]         QDialogButtonBox.StandardButton.Ok: "desktop.confirm",
+
+[PT-BR]         QDialogButtonBox.StandardButton.Yes: "desktop.yes",
+
+[PT-BR]         QDialogButtonBox.StandardButton.No: "desktop.no",
+
+[PT-BR]     }
+
+[PT-BR]     for standard, key in labels.items():
+
+[PT-BR]         try:
+
+[PT-BR]             button = buttons.button(standard)
+
+[PT-BR]         except TypeError:
+
+[PT-BR]             button = buttons.button(type(buttons).StandardButton(standard.value))
+
+[PT-BR]         if button:
+
+[PT-BR]             button.setText(t(key))
 
 
-def apply_input_border_style(widget, selector):
-    states = ",\n".join([
-        selector,
-        f"{selector}:hover",
-        f"{selector}:focus",
-        f"{selector}[transparent=true]:focus",
-        f"{selector}[transparent=false]:focus",
-        f"{selector}:disabled",
-    ])
-    light = f"{states} {{ border-bottom-color: rgba(0, 0, 0, 13); }}"
-    dark = f"{states} {{ border-bottom-color: rgba(255, 255, 255, 0.08); }}"
-    setCustomStyleSheet(widget, light, dark)
 
 
-def _table_check_state(state):
-    if isinstance(state, Qt.CheckState):
-        return state
-    if isinstance(state, bool):
-        return Qt.CheckState.Checked if state else Qt.CheckState.Unchecked
-    try:
-        return Qt.CheckState(int(state))
-    except (TypeError, ValueError):
-        return Qt.CheckState.Unchecked
+
+[PT-BR] def apply_input_border_style(widget, selector):
+
+[PT-BR]     states = ",\n".join([
+
+[PT-BR]         selector,
+
+[PT-BR]         f"{selector}:hover",
+
+[PT-BR]         f"{selector}:focus",
+
+[PT-BR]         f"{selector}[transparent=true]:focus",
+
+[PT-BR]         f"{selector}[transparent=false]:focus",
+
+[PT-BR]         f"{selector}:disabled",
+
+[PT-BR]     ])
+
+[PT-BR]     light = f"{states} {{ border-bottom-color: rgba(0, 0, 0, 13); }}"
+
+[PT-BR]     dark = f"{states} {{ border-bottom-color: rgba(255, 255, 255, 0.08); }}"
+
+[PT-BR]     setCustomStyleSheet(widget, light, dark)
 
 
-def paint_table_checkbox(painter, rect, state):
-    state = _table_check_state(state)
-    size = min(16, rect.width(), rect.height())
-    box = QRect(rect.center().x() - size // 2, rect.center().y() - size // 2, size, size)
-    checked = state in (Qt.CheckState.Checked, Qt.CheckState.PartiallyChecked)
-    border = QColor("#60A5FA" if isDarkTheme() else "#2563EB") if checked else QColor(
-        "#94A3B8" if isDarkTheme() else "#64748B"
-    )
-    painter.save()
-    painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-    painter.setPen(QPen(border, 1.6))
-    painter.setBrush(QBrush(border if checked else Qt.BrushStyle.NoBrush))
-    painter.drawRoundedRect(box.adjusted(1, 1, -1, -1), 3, 3)
-    painter.setPen(QPen(
-        QColor("#FFFFFF"),
-        1.8,
-        Qt.PenStyle.SolidLine,
-        Qt.PenCapStyle.RoundCap,
-        Qt.PenJoinStyle.RoundJoin,
-    ))
-    if state == Qt.CheckState.Checked:
-        painter.drawLine(box.left() + 4, box.center().y(), box.left() + 7, box.bottom() - 4)
-        painter.drawLine(box.left() + 7, box.bottom() - 4, box.right() - 3, box.top() + 4)
-    elif state == Qt.CheckState.PartiallyChecked:
-        painter.drawLine(box.left() + 4, box.center().y(), box.right() - 4, box.center().y())
-    painter.restore()
 
 
-class ContinuousTreeItemDelegate(QStyledItemDelegate):
-    """Paint tree selection as one uninterrupted rounded row across columns."""
+
+[PT-BR] def _table_check_state(state):
+
+[PT-BR]     if isinstance(state, Qt.CheckState):
+
+[PT-BR]         return state
+
+[PT-BR]     if isinstance(state, bool):
+
+[PT-BR]         return Qt.CheckState.Checked if state else Qt.CheckState.Unchecked
+
+[PT-BR]     try:
+
+[PT-BR]         return Qt.CheckState(int(state))
+
+[PT-BR]     except (TypeError, ValueError):
+
+[PT-BR]         return Qt.CheckState.Unchecked
+
+
+
+
+
+[PT-BR] def paint_table_checkbox(painter, rect, state):
+
+[PT-BR]     state = _table_check_state(state)
+
+[PT-BR]     size = min(16, rect.width(), rect.height())
+
+[PT-BR]     box = QRect(rect.center().x() - size // 2, rect.center().y() - size // 2, size, size)
+
+[PT-BR]     checked = state in (Qt.CheckState.Checked, Qt.CheckState.PartiallyChecked)
+
+[PT-BR]     border = QColor("#60A5FA" if isDarkTheme() else "#2563EB") if checked else QColor(
+
+[PT-BR]         "#94A3B8" if isDarkTheme() else "#64748B"
+
+[PT-BR]     )
+
+[PT-BR]     painter.save()
+
+[PT-BR]     painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+
+[PT-BR]     painter.setPen(QPen(border, 1.6))
+
+[PT-BR]     painter.setBrush(QBrush(border if checked else Qt.BrushStyle.NoBrush))
+
+[PT-BR]     painter.drawRoundedRect(box.adjusted(1, 1, -1, -1), 3, 3)
+
+[PT-BR]     painter.setPen(QPen(
+
+[PT-BR]         QColor("#FFFFFF"),
+
+[PT-BR]         1.8,
+
+[PT-BR]         Qt.PenStyle.SolidLine,
+
+[PT-BR]         Qt.PenCapStyle.RoundCap,
+
+[PT-BR]         Qt.PenJoinStyle.RoundJoin,
+
+[PT-BR]     ))
+
+[PT-BR]     if state == Qt.CheckState.Checked:
+
+[PT-BR]         painter.drawLine(box.left() + 4, box.center().y(), box.left() + 7, box.bottom() - 4)
+
+[PT-BR]         painter.drawLine(box.left() + 7, box.bottom() - 4, box.right() - 3, box.top() + 4)
+
+[PT-BR]     elif state == Qt.CheckState.PartiallyChecked:
+
+[PT-BR]         painter.drawLine(box.left() + 4, box.center().y(), box.right() - 4, box.center().y())
+
+[PT-BR]     painter.restore()
+
+
+
+
+
+[PT-BR] class ContinuousTreeItemDelegate(QStyledItemDelegate):
+"""
 
     def paint(self, painter, option, index):
         selected = bool(option.state & QStyle.StateFlag.State_Selected)
@@ -270,273 +347,537 @@ class TableCheckBoxDelegate(TableItemDelegate):
 
 
 class _AdaptiveTableColumns(QObject):
-    """Keep interactive table columns fitted to the viewport."""
-
-    layout_fitted = Signal()
-
-    def __init__(self, table, widths: list[int], state_key: str, fixed_widths=None, minimum_widths=None):
-        super().__init__(table)
-        self.table = table
-        self.viewport = table.viewport()
-        self.header = table.horizontalHeader()
-        self.state_key = state_key
-        self.fixed_widths = dict(fixed_widths or {})
-        self.minimum_widths = {
-            column: max(1, int(width))
-            for column, width in (minimum_widths or {}).items()
-        }
-        self._applying = False
-        self._weights = self._load_weights(widths)
-        self._save_timer = QTimer(self)
-        self._save_timer.setSingleShot(True)
-        self._save_timer.setInterval(250)
-        self._save_timer.timeout.connect(self._save)
-        self._fit_timer = QTimer(self)
-        self._fit_timer.setSingleShot(True)
-        self._fit_timer.timeout.connect(self.fit)
-
-        self.viewport.installEventFilter(self)
-        self.header.sectionMoved.connect(self._schedule_save)
-        self.header.sectionResized.connect(self._section_resized)
-        QTimer.singleShot(0, self.fit)
-
-    def _load_weights(self, widths: list[int]) -> list[float]:
-        count = self.header.count()
-        defaults = [float(width) for width in widths[:count]]
-        if len(defaults) < count:
-            defaults.extend([100.0] * (count - len(defaults)))
-
-        settings = QSettings()
-        saved_state = settings.value(f"appearance/table_headers/{self.state_key}")
-        if saved_state is not None:
-            self.header.restoreState(saved_state)
-        else:
-            for column, width in enumerate(defaults):
-                self.header.resizeSection(column, int(width))
-
-        saved_weights = settings.value(f"appearance/table_column_weights/{self.state_key}")
-        if isinstance(saved_weights, (list, tuple)) and len(saved_weights) == count:
-            try:
-                parsed = [max(1.0, float(value)) for value in saved_weights]
-                if all(value > 0 for value in parsed):
-                    return parsed
-            except (TypeError, ValueError):
-                pass
-        if saved_state is not None:
-            return [float(max(1, self.header.sectionSize(column))) for column in range(count)]
-        return defaults
-
-    def eventFilter(self, watched, event):
-        if watched is self.viewport and event.type() in {
-            QEvent.Type.Resize,
-            QEvent.Type.Show,
-        }:
-            self._fit_timer.start(0)
-        return super().eventFilter(watched, event)
-
-    def fit(self):
-        visible = [
-            column
-            for column in range(self.header.count())
-            if not self.header.isSectionHidden(column)
-        ]
-        available = self.viewport.width()
-        if not visible or available <= 0:
-            return
-
-        minimum = self.header.minimumSectionSize()
-        minimums = {
-            column: max(minimum, self.minimum_widths.get(column, minimum))
-            for column in visible
-        }
-        fixed = {
-            column: width
-            for column, width in self.fixed_widths.items()
-            if column in visible
-        }
-        sizes = dict(fixed)
-        pending = [column for column in visible if column not in fixed]
-        remaining = available - sum(fixed.values())
-        minimum_total = sum(minimums[column] for column in pending)
-        for column in pending:
-            sizes[column] = minimums[column]
-
-        # Keep important columns readable even when the viewport is too narrow.
-        # The table can then scroll horizontally instead of eliding their data.
-        if remaining > minimum_total and pending:
-            extra = remaining - minimum_total
-            weight_total = sum(self._weights[column] for column in pending)
-            for position, column in enumerate(pending):
-                if position == len(pending) - 1:
-                    sizes[column] += extra
-                else:
-                    share = round(extra * self._weights[column] / weight_total)
-                    sizes[column] += share
-                    extra -= share
-                    weight_total -= self._weights[column]
-
-        self._applying = True
-        self.header.blockSignals(True)
-        try:
-            for column in visible:
-                self.header.resizeSection(column, sizes[column])
-        finally:
-            self.header.blockSignals(False)
-            self._applying = False
-        # Blocking section signals keeps an adaptive resize from being treated
-        # as a user resize, but it also prevents persistent cell editors from
-        # receiving updated geometry. Re-layout the view after the final column
-        # sizes are applied so hidden pages restore with correctly placed
-        # editors.
-        self.table.doItemsLayout()
-        self.layout_fitted.emit()
-
-    def _section_resized(self, *_):
-        if self._applying:
-            return
-        self._weights = [
-            float(max(1, self.header.sectionSize(column)))
-            for column in range(self.header.count())
-        ]
-        self._fit_timer.start(150)
-        self._schedule_save()
-
-    def _schedule_save(self, *_):
-        self._save_timer.start()
-
-    def _save(self):
-        settings = QSettings()
-        settings.setValue(
-            f"appearance/table_headers/{self.state_key}",
-            self.header.saveState(),
-        )
-        settings.setValue(
-            f"appearance/table_column_weights/{self.state_key}",
-            self._weights,
-        )
+"""
 
 
-def configure_table_columns(table, widths: list[int], state_key: str, fixed_widths=None, minimum_widths=None):
-    header = table.horizontalHeader()
-    header.setCascadingSectionResizes(False)
-    header.setMinimumSectionSize(40)
-    header.setStretchLastSection(False)
-    header.setSectionsMovable(True)
-    header.setSectionResizeMode(QHeaderView.ResizeMode.Interactive)
-    for column, width in (fixed_widths or {}).items():
-        header.setSectionResizeMode(column, QHeaderView.ResizeMode.Fixed)
-        header.resizeSection(column, width)
-    existing = getattr(header, "_adaptive_columns", None)
-    if (
-        existing is not None
-        and existing.state_key == state_key
-        and existing.fixed_widths == dict(fixed_widths or {})
-        and existing.minimum_widths == {
-            column: max(1, int(width))
-            for column, width in (minimum_widths or {}).items()
-        }
-    ):
-        header.setSectionsClickable(True)
-        header.setSortIndicatorShown(True)
-        return
-    header._adaptive_columns = _AdaptiveTableColumns(
-        table,
-        widths,
-        state_key,
-        fixed_widths=fixed_widths,
-        minimum_widths=minimum_widths,
-    )
-    header.setSectionsClickable(True)
-    header.setSortIndicatorShown(True)
+[PT-BR]     layout_fitted = Signal()
 
 
-class AppLineEdit(LineEdit):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        apply_input_border_style(self, "LineEdit")
+
+[PT-BR]     def __init__(self, table, widths: list[int], state_key: str, fixed_widths=None, minimum_widths=None):
+
+[PT-BR]         super().__init__(table)
+
+[PT-BR]         self.table = table
+
+[PT-BR]         self.viewport = table.viewport()
+
+[PT-BR]         self.header = table.horizontalHeader()
+
+[PT-BR]         self.state_key = state_key
+
+[PT-BR]         self.fixed_widths = dict(fixed_widths or {})
+
+[PT-BR]         self.minimum_widths = {
+
+[PT-BR]             column: max(1, int(width))
+
+[PT-BR]             for column, width in (minimum_widths or {}).items()
+
+[PT-BR]         }
+
+[PT-BR]         self._applying = False
+
+[PT-BR]         self._weights = self._load_weights(widths)
+
+[PT-BR]         self._save_timer = QTimer(self)
+
+[PT-BR]         self._save_timer.setSingleShot(True)
+
+[PT-BR]         self._save_timer.setInterval(250)
+
+[PT-BR]         self._save_timer.timeout.connect(self._save)
+
+[PT-BR]         self._fit_timer = QTimer(self)
+
+[PT-BR]         self._fit_timer.setSingleShot(True)
+
+[PT-BR]         self._fit_timer.timeout.connect(self.fit)
 
 
-class AppSearchLineEdit(SearchLineEdit):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        apply_input_border_style(self, "LineEdit")
+
+[PT-BR]         self.viewport.installEventFilter(self)
+
+[PT-BR]         self.header.sectionMoved.connect(self._schedule_save)
+
+[PT-BR]         self.header.sectionResized.connect(self._section_resized)
+
+[PT-BR]         QTimer.singleShot(0, self.fit)
 
 
-class AppEditableComboBox(EditableComboBox):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        apply_input_border_style(self, "LineEdit")
+
+[PT-BR]     def _load_weights(self, widths: list[int]) -> list[float]:
+
+[PT-BR]         count = self.header.count()
+
+[PT-BR]         defaults = [float(width) for width in widths[:count]]
+
+[PT-BR]         if len(defaults) < count:
+
+[PT-BR]             defaults.extend([100.0] * (count - len(defaults)))
 
 
-class AppPlainTextEdit(PlainTextEdit):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        apply_input_border_style(self, "PlainTextEdit")
+
+[PT-BR]         settings = QSettings()
+
+[PT-BR]         saved_state = settings.value(f"appearance/table_headers/{self.state_key}")
+
+[PT-BR]         if saved_state is not None:
+
+[PT-BR]             self.header.restoreState(saved_state)
+
+[PT-BR]         else:
+
+[PT-BR]             for column, width in enumerate(defaults):
+
+[PT-BR]                 self.header.resizeSection(column, int(width))
 
 
-class AccentPushButton(PrimaryPushButton):
-    def _postInit(self):
-        super()._postInit()
-        qconfig.themeChangedFinished.connect(self._apply_semantic_style)
-        self._apply_semantic_style()
 
-    def _apply_semantic_style(self, *_):
-        self.setStyleSheet(
-            "QPushButton { color: #FFFFFF; background-color: #2563EB; border: none; border-radius: 6px; padding: 6px 13px; }"
-            "QPushButton[hasIcon=true] { padding-left: 31px; }"
-            "QPushButton:hover { background-color: #1D4ED8; }"
-            "QPushButton:pressed { background-color: #1E40AF; }"
-            "QPushButton:disabled { color: #CBD5E1; background-color: #64748B; }"
-        )
+[PT-BR]         saved_weights = settings.value(f"appearance/table_column_weights/{self.state_key}")
 
-    def setIcon(self, icon):
-        super().setIcon(icon.icon(color=QColor("#FFFFFF")) if hasattr(icon, "icon") else icon)
+[PT-BR]         if isinstance(saved_weights, (list, tuple)) and len(saved_weights) == count:
 
+[PT-BR]             try:
 
-class DangerPushButton(PushButton):
-    def _postInit(self):
-        super()._postInit()
-        qconfig.themeChangedFinished.connect(self._apply_semantic_style)
-        self._apply_semantic_style()
+[PT-BR]                 parsed = [max(1.0, float(value)) for value in saved_weights]
 
-    def _apply_semantic_style(self, *_):
-        color = "#F87171" if isDarkTheme() else "#DC2626"
-        border = "#EF4444" if isDarkTheme() else "#FCA5A5"
-        hover = "rgba(248, 113, 113, 28)" if isDarkTheme() else "rgba(220, 38, 38, 18)"
-        pressed = "rgba(248, 113, 113, 48)" if isDarkTheme() else "rgba(220, 38, 38, 34)"
-        self.setStyleSheet(
-            f"QPushButton {{ color: {color}; background-color: transparent; border: 1px solid {border}; border-radius: 6px; padding: 5px 12px; }}"
-            "QPushButton[hasIcon=true] { padding-left: 31px; }"
-            f"QPushButton:hover {{ background-color: {hover}; }}"
-            f"QPushButton:pressed {{ background-color: {pressed}; }}"
-            "QPushButton:disabled { color: #94A3B8; border-color: #64748B; background-color: transparent; }"
-        )
-        if hasattr(self, "_semantic_icon"):
-            icon = self._semantic_icon
-            PushButton.setIcon(self, icon.icon(color=QColor(color)) if hasattr(icon, "icon") else icon)
+[PT-BR]                 if all(value > 0 for value in parsed):
 
-    def setIcon(self, icon):
-        self._semantic_icon = icon
-        color = QColor("#F87171" if isDarkTheme() else "#DC2626")
-        super().setIcon(icon.icon(color=color) if hasattr(icon, "icon") else icon)
+[PT-BR]                     return parsed
+
+[PT-BR]             except (TypeError, ValueError):
+
+[PT-BR]                 pass
+
+[PT-BR]         if saved_state is not None:
+
+[PT-BR]             return [float(max(1, self.header.sectionSize(column))) for column in range(count)]
+
+[PT-BR]         return defaults
 
 
-def play_circle_icon(color="#FFFFFF"):
-    pixmap = QPixmap(32, 32)
-    pixmap.fill(Qt.GlobalColor.transparent)
-    painter = QPainter(pixmap)
-    painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-    painter.setPen(QPen(QColor(color), 2.1))
-    painter.drawEllipse(3.5, 3.5, 25, 25)
-    painter.setPen(Qt.PenStyle.NoPen)
-    painter.setBrush(QColor(color))
-    painter.drawPolygon(QPolygonF([QPointF(13, 10), QPointF(13, 22), QPointF(23, 16)]))
-    painter.end()
-    return QIcon(pixmap)
+
+[PT-BR]     def eventFilter(self, watched, event):
+
+[PT-BR]         if watched is self.viewport and event.type() in {
+
+[PT-BR]             QEvent.Type.Resize,
+
+[PT-BR]             QEvent.Type.Show,
+
+[PT-BR]         }:
+
+[PT-BR]             self._fit_timer.start(0)
+
+[PT-BR]         return super().eventFilter(watched, event)
 
 
-class MetricIconWidget(QWidget):
-    """Icon renderer that can rotate without a costly graphics effect."""
+
+[PT-BR]     def fit(self):
+
+[PT-BR]         visible = [
+
+[PT-BR]             column
+
+[PT-BR]             for column in range(self.header.count())
+
+[PT-BR]             if not self.header.isSectionHidden(column)
+
+[PT-BR]         ]
+
+[PT-BR]         available = self.viewport.width()
+
+[PT-BR]         if not visible or available <= 0:
+
+[PT-BR]             return
+
+
+
+[PT-BR]         minimum = self.header.minimumSectionSize()
+
+[PT-BR]         minimums = {
+
+[PT-BR]             column: max(minimum, self.minimum_widths.get(column, minimum))
+
+[PT-BR]             for column in visible
+
+[PT-BR]         }
+
+[PT-BR]         fixed = {
+
+[PT-BR]             column: width
+
+[PT-BR]             for column, width in self.fixed_widths.items()
+
+[PT-BR]             if column in visible
+
+[PT-BR]         }
+
+[PT-BR]         sizes = dict(fixed)
+
+[PT-BR]         pending = [column for column in visible if column not in fixed]
+
+[PT-BR]         remaining = available - sum(fixed.values())
+
+[PT-BR]         minimum_total = sum(minimums[column] for column in pending)
+
+[PT-BR]         for column in pending:
+
+[PT-BR]             sizes[column] = minimums[column]
+
+
+
+[PT-BR]         # Keep important columns readable even when the viewport is too narrow.
+
+[PT-BR]         # The table can then scroll horizontally instead of eliding their data.
+
+[PT-BR]         if remaining > minimum_total and pending:
+
+[PT-BR]             extra = remaining - minimum_total
+
+[PT-BR]             weight_total = sum(self._weights[column] for column in pending)
+
+[PT-BR]             for position, column in enumerate(pending):
+
+[PT-BR]                 if position == len(pending) - 1:
+
+[PT-BR]                     sizes[column] += extra
+
+[PT-BR]                 else:
+
+[PT-BR]                     share = round(extra * self._weights[column] / weight_total)
+
+[PT-BR]                     sizes[column] += share
+
+[PT-BR]                     extra -= share
+
+[PT-BR]                     weight_total -= self._weights[column]
+
+
+
+[PT-BR]         self._applying = True
+
+[PT-BR]         self.header.blockSignals(True)
+
+[PT-BR]         try:
+
+[PT-BR]             for column in visible:
+
+[PT-BR]                 self.header.resizeSection(column, sizes[column])
+
+[PT-BR]         finally:
+
+[PT-BR]             self.header.blockSignals(False)
+
+[PT-BR]             self._applying = False
+
+[PT-BR]         # Blocking section signals keeps an adaptive resize from being treated
+
+[PT-BR]         # as a user resize, but it also prevents persistent cell editors from
+
+[PT-BR]         # receiving updated geometry. Re-layout the view after the final column
+
+[PT-BR]         # sizes are applied so hidden pages restore with correctly placed
+
+[PT-BR]         # editors.
+
+[PT-BR]         self.table.doItemsLayout()
+
+[PT-BR]         self.layout_fitted.emit()
+
+
+
+[PT-BR]     def _section_resized(self, *_):
+
+[PT-BR]         if self._applying:
+
+[PT-BR]             return
+
+[PT-BR]         self._weights = [
+
+[PT-BR]             float(max(1, self.header.sectionSize(column)))
+
+[PT-BR]             for column in range(self.header.count())
+
+[PT-BR]         ]
+
+[PT-BR]         self._fit_timer.start(150)
+
+[PT-BR]         self._schedule_save()
+
+
+
+[PT-BR]     def _schedule_save(self, *_):
+
+[PT-BR]         self._save_timer.start()
+
+
+
+[PT-BR]     def _save(self):
+
+[PT-BR]         settings = QSettings()
+
+[PT-BR]         settings.setValue(
+
+[PT-BR]             f"appearance/table_headers/{self.state_key}",
+
+[PT-BR]             self.header.saveState(),
+
+[PT-BR]         )
+
+[PT-BR]         settings.setValue(
+
+[PT-BR]             f"appearance/table_column_weights/{self.state_key}",
+
+[PT-BR]             self._weights,
+
+[PT-BR]         )
+
+
+
+
+
+[PT-BR] def configure_table_columns(table, widths: list[int], state_key: str, fixed_widths=None, minimum_widths=None):
+
+[PT-BR]     header = table.horizontalHeader()
+
+[PT-BR]     header.setCascadingSectionResizes(False)
+
+[PT-BR]     header.setMinimumSectionSize(40)
+
+[PT-BR]     header.setStretchLastSection(False)
+
+[PT-BR]     header.setSectionsMovable(True)
+
+[PT-BR]     header.setSectionResizeMode(QHeaderView.ResizeMode.Interactive)
+
+[PT-BR]     for column, width in (fixed_widths or {}).items():
+
+[PT-BR]         header.setSectionResizeMode(column, QHeaderView.ResizeMode.Fixed)
+
+[PT-BR]         header.resizeSection(column, width)
+
+[PT-BR]     existing = getattr(header, "_adaptive_columns", None)
+
+[PT-BR]     if (
+
+[PT-BR]         existing is not None
+
+[PT-BR]         and existing.state_key == state_key
+
+[PT-BR]         and existing.fixed_widths == dict(fixed_widths or {})
+
+[PT-BR]         and existing.minimum_widths == {
+
+[PT-BR]             column: max(1, int(width))
+
+[PT-BR]             for column, width in (minimum_widths or {}).items()
+
+[PT-BR]         }
+
+[PT-BR]     ):
+
+[PT-BR]         header.setSectionsClickable(True)
+
+[PT-BR]         header.setSortIndicatorShown(True)
+
+[PT-BR]         return
+
+[PT-BR]     header._adaptive_columns = _AdaptiveTableColumns(
+
+[PT-BR]         table,
+
+[PT-BR]         widths,
+
+[PT-BR]         state_key,
+
+[PT-BR]         fixed_widths=fixed_widths,
+
+[PT-BR]         minimum_widths=minimum_widths,
+
+[PT-BR]     )
+
+[PT-BR]     header.setSectionsClickable(True)
+
+[PT-BR]     header.setSortIndicatorShown(True)
+
+
+
+
+
+[PT-BR] class AppLineEdit(LineEdit):
+
+[PT-BR]     def __init__(self, parent=None):
+
+[PT-BR]         super().__init__(parent)
+
+[PT-BR]         apply_input_border_style(self, "LineEdit")
+
+
+
+
+
+[PT-BR] class AppSearchLineEdit(SearchLineEdit):
+
+[PT-BR]     def __init__(self, parent=None):
+
+[PT-BR]         super().__init__(parent)
+
+[PT-BR]         apply_input_border_style(self, "LineEdit")
+
+
+
+
+
+[PT-BR] class AppEditableComboBox(EditableComboBox):
+
+[PT-BR]     def __init__(self, parent=None):
+
+[PT-BR]         super().__init__(parent)
+
+[PT-BR]         apply_input_border_style(self, "LineEdit")
+
+
+
+
+
+[PT-BR] class AppPlainTextEdit(PlainTextEdit):
+
+[PT-BR]     def __init__(self, parent=None):
+
+[PT-BR]         super().__init__(parent)
+
+[PT-BR]         apply_input_border_style(self, "PlainTextEdit")
+
+
+
+
+
+[PT-BR] class AccentPushButton(PrimaryPushButton):
+
+[PT-BR]     def _postInit(self):
+
+[PT-BR]         super()._postInit()
+
+[PT-BR]         qconfig.themeChangedFinished.connect(self._apply_semantic_style)
+
+[PT-BR]         self._apply_semantic_style()
+
+
+
+[PT-BR]     def _apply_semantic_style(self, *_):
+
+[PT-BR]         self.setStyleSheet(
+
+[PT-BR]             "QPushButton { color: #FFFFFF; background-color: #2563EB; border: none; border-radius: 6px; padding: 6px 13px; }"
+
+[PT-BR]             "QPushButton[hasIcon=true] { padding-left: 31px; }"
+
+[PT-BR]             "QPushButton:hover { background-color: #1D4ED8; }"
+
+[PT-BR]             "QPushButton:pressed { background-color: #1E40AF; }"
+
+[PT-BR]             "QPushButton:disabled { color: #CBD5E1; background-color: #64748B; }"
+
+[PT-BR]         )
+
+
+
+[PT-BR]     def setIcon(self, icon):
+
+[PT-BR]         super().setIcon(icon.icon(color=QColor("#FFFFFF")) if hasattr(icon, "icon") else icon)
+
+
+
+
+
+[PT-BR] class DangerPushButton(PushButton):
+
+[PT-BR]     def _postInit(self):
+
+[PT-BR]         super()._postInit()
+
+[PT-BR]         qconfig.themeChangedFinished.connect(self._apply_semantic_style)
+
+[PT-BR]         self._apply_semantic_style()
+
+
+
+[PT-BR]     def _apply_semantic_style(self, *_):
+
+[PT-BR]         color = "#F87171" if isDarkTheme() else "#DC2626"
+
+[PT-BR]         border = "#EF4444" if isDarkTheme() else "#FCA5A5"
+
+[PT-BR]         hover = "rgba(248, 113, 113, 28)" if isDarkTheme() else "rgba(220, 38, 38, 18)"
+
+[PT-BR]         pressed = "rgba(248, 113, 113, 48)" if isDarkTheme() else "rgba(220, 38, 38, 34)"
+
+[PT-BR]         self.setStyleSheet(
+
+[PT-BR]             f"QPushButton {{ color: {color}; background-color: transparent; border: 1px solid {border}; border-radius: 6px; padding: 5px 12px; }}"
+
+[PT-BR]             "QPushButton[hasIcon=true] { padding-left: 31px; }"
+
+[PT-BR]             f"QPushButton:hover {{ background-color: {hover}; }}"
+
+[PT-BR]             f"QPushButton:pressed {{ background-color: {pressed}; }}"
+
+[PT-BR]             "QPushButton:disabled { color: #94A3B8; border-color: #64748B; background-color: transparent; }"
+
+[PT-BR]         )
+
+[PT-BR]         if hasattr(self, "_semantic_icon"):
+
+[PT-BR]             icon = self._semantic_icon
+
+[PT-BR]             PushButton.setIcon(self, icon.icon(color=QColor(color)) if hasattr(icon, "icon") else icon)
+
+
+
+[PT-BR]     def setIcon(self, icon):
+
+[PT-BR]         self._semantic_icon = icon
+
+[PT-BR]         color = QColor("#F87171" if isDarkTheme() else "#DC2626")
+
+[PT-BR]         super().setIcon(icon.icon(color=color) if hasattr(icon, "icon") else icon)
+
+
+
+
+
+[PT-BR] def play_circle_icon(color="#FFFFFF"):
+
+[PT-BR]     pixmap = QPixmap(32, 32)
+
+[PT-BR]     pixmap.fill(Qt.GlobalColor.transparent)
+
+[PT-BR]     painter = QPainter(pixmap)
+
+[PT-BR]     painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+
+[PT-BR]     painter.setPen(QPen(QColor(color), 2.1))
+
+[PT-BR]     painter.drawEllipse(3.5, 3.5, 25, 25)
+
+[PT-BR]     painter.setPen(Qt.PenStyle.NoPen)
+
+[PT-BR]     painter.setBrush(QColor(color))
+
+[PT-BR]     painter.drawPolygon(QPolygonF([QPointF(13, 10), QPointF(13, 22), QPointF(23, 16)]))
+
+[PT-BR]     painter.end()
+
+[PT-BR]     return QIcon(pixmap)
+
+
+
+
+
+[PT-BR] class MetricIconWidget(QWidget):
+"""
 
     def __init__(self, icon=None, parent=None):
         super().__init__(parent)
@@ -563,176 +904,343 @@ class MetricIconWidget(QWidget):
 
 
 class GlassCard(CardWidget):
-    """A lightweight glass surface for focused, low-density dashboard content."""
-
-    def __init__(self, parent=None, accent="#2563EB"):
-        super().__init__(parent)
-        self._accent = QColor(accent)
-        self._pulse_until = 0.0
-        self._pulse_timer = QTimer(self)
-        self._pulse_timer.setInterval(33)
-        self._pulse_timer.timeout.connect(self._advance_pulse)
-        self.setBorderRadius(12)
-        self._shadow = QGraphicsDropShadowEffect(self)
-        self._shadow.setBlurRadius(18)
-        self._shadow.setOffset(0, 3)
-        self.setGraphicsEffect(self._shadow)
-        qconfig.themeChangedFinished.connect(self._apply_surface_style)
-        self._apply_surface_style()
-
-    def set_accent(self, accent: str):
-        self._accent = QColor(accent)
-        self.update()
-
-    def pulse(self, duration_ms: int = 360):
-        self._pulse_until = max(self._pulse_until, time.monotonic() + duration_ms / 1000)
-        if not self._pulse_timer.isActive():
-            self._pulse_timer.start()
-        self.update()
-
-    def _advance_pulse(self):
-        if time.monotonic() >= self._pulse_until:
-            self._pulse_timer.stop()
-        self.update()
-
-    def _apply_surface_style(self, *_):
-        shadow = QColor("#000000")
-        shadow.setAlpha(70 if isDarkTheme() else 24)
-        self._shadow.setColor(shadow)
-
-    def paintEvent(self, _event):
-        now = time.monotonic()
-        pulse = 0.0
-        if now < self._pulse_until:
-            remaining = (self._pulse_until - now) / 0.36
-            pulse = math.sin(max(0.0, min(1.0, remaining)) * math.pi)
-        painter = QPainter(self)
-        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-        rect = self.rect().adjusted(1, 1, -1, -1)
-        radius = 12.0
-        accent = QColor(self._accent)
-        glass = QLinearGradient(0, rect.top(), 0, rect.bottom())
-        if isDarkTheme():
-            glass.setColorAt(0, QColor(39, 51, 70, 198 if self.isHover else 186))
-            glass.setColorAt(1, QColor(22, 30, 45, 178 if self.isHover else 164))
-            highlight = QColor(255, 255, 255, 42)
-            border = QColor(255, 255, 255, 38)
-        else:
-            glass.setColorAt(0, QColor(255, 255, 255, 222 if self.isHover else 208))
-            glass.setColorAt(1, QColor(241, 245, 249, 200 if self.isHover else 184))
-            highlight = QColor(255, 255, 255, 178)
-            border = QColor(148, 163, 184, 48)
-        painter.setPen(Qt.PenStyle.NoPen)
-        painter.setBrush(glass)
-        painter.drawRoundedRect(rect, radius, radius)
-        radial = QRadialGradient(rect.right() - 12, rect.top() + 10, max(48, rect.width() * 0.36))
-        tint = QColor(accent)
-        tint.setAlpha(int((24 if isDarkTheme() else 14) + pulse * 24))
-        radial.setColorAt(0, tint)
-        radial.setColorAt(1, QColor(accent.red(), accent.green(), accent.blue(), 0))
-        painter.setBrush(radial)
-        painter.drawRoundedRect(rect, radius, radius)
-        painter.setBrush(Qt.BrushStyle.NoBrush)
-        painter.setPen(QPen(highlight, 1.0))
-        painter.drawRoundedRect(rect.adjusted(1, 1, -1, -1), radius - 1, radius - 1)
-        if pulse:
-            border = QColor(accent)
-            border.setAlpha(int(42 + pulse * 126))
-        painter.setPen(QPen(border, 1.0))
-        painter.drawRoundedRect(rect, radius, radius)
+"""
 
 
-class MetricCard(CardWidget):
-    def __init__(
-        self,
-        title: str,
-        value: str = "--",
-        detail: str = "",
-        icon=None,
-        parent=None,
-        accent="#0E5CAD",
-        animate_value_updates: bool = False,
-    ):
-        super().__init__(parent)
-        self._accent = QColor(accent)
-        self._animate_value_updates = animate_value_updates
-        self._activity = False
-        self._rotate_icon = False
-        self._activity_delay = 0.0
-        self._activity_started_at = 0.0
-        self._pulse_until = 0.0
-        self._animation_timer = QTimer(self)
-        self._animation_timer.setInterval(33)  # 30 fps is ample for small dashboard accents.
-        self._animation_timer.timeout.connect(self._advance_animation)
-        self.setMinimumHeight(104)
-        self.setBorderRadius(12)
-        self._shadow = QGraphicsDropShadowEffect(self)
-        self._shadow.setBlurRadius(18)
-        self._shadow.setOffset(0, 3)
-        self.setGraphicsEffect(self._shadow)
-        root = QHBoxLayout(self)
-        root.setContentsMargins(18, 14, 18, 14)
-        root.setSpacing(14)
-        self.icon_container = QWidget(self) if icon else None
-        self.icon_widget = MetricIconWidget(icon.icon(color=QColor(accent)) if hasattr(icon, "icon") else icon, self.icon_container) if icon else None
-        if self.icon_widget:
-            self.icon_container.setFixedSize(42, 42)
-            color = QColor(accent)
-            self.icon_container.setStyleSheet(
-                f"background-color: rgba({color.red()}, {color.green()}, {color.blue()}, 38); border-radius: 10px;"
-            )
-            icon_layout = QHBoxLayout(self.icon_container)
-            icon_layout.setContentsMargins(9, 9, 9, 9)
-            self.icon_widget.setFixedSize(24, 24)
-            icon_layout.addWidget(self.icon_widget)
-            root.addWidget(self.icon_container, 0, Qt.AlignmentFlag.AlignTop)
-        layout = QVBoxLayout()
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(4)
-        self.title_label = BodyLabel(title, self)
-        self.value_label = StrongBodyLabel(value, self)
-        font = self.value_label.font()
-        font.setPointSize(20)
-        font.setBold(True)
-        self.value_label.setFont(font)
-        self.detail_label = BodyLabel(detail, self)
-        layout.addWidget(self.title_label)
-        layout.addWidget(self.value_label)
-        layout.addWidget(self.detail_label)
-        root.addLayout(layout, 1)
-        qconfig.themeChangedFinished.connect(self._apply_text_colors)
-        qconfig.themeChangedFinished.connect(self._apply_surface_style)
-        self._apply_text_colors()
-        self._apply_surface_style()
+[PT-BR]     def __init__(self, parent=None, accent="#2563EB"):
 
-    def _apply_text_colors(self, *_):
-        dark = isDarkTheme()
-        title = "#CBD5E1" if dark else "#475569"
-        detail = "#94A3B8" if dark else "#64748B"
-        value = self._accent.lighter(135).name() if dark else self._accent.name()
-        self.title_label.setStyleSheet(f"color: {title};")
-        self.value_label.setStyleSheet(f"color: {value};")
-        self.detail_label.setStyleSheet(f"color: {detail};")
+[PT-BR]         super().__init__(parent)
 
-    def _apply_surface_style(self, *_):
-        shadow = QColor("#000000")
-        shadow.setAlpha(70 if isDarkTheme() else 24)
-        self._shadow.setColor(shadow)
+[PT-BR]         self._accent = QColor(accent)
 
-    def set_clickable(self, clickable: bool = True):
-        self.setClickEnabled(clickable)
-        self.setCursor(Qt.CursorShape.PointingHandCursor if clickable else Qt.CursorShape.ArrowCursor)
+[PT-BR]         self._pulse_until = 0.0
 
-    def set_value(self, value, detail: str | None = None):
-        changed = self.value_label.text() != str(value)
-        self.value_label.setText(str(value))
-        if detail is not None:
-            self.detail_label.setText(detail)
-        if changed and self._activity and self._animate_value_updates:
-            self.pulse()
+[PT-BR]         self._pulse_timer = QTimer(self)
 
-    def set_activity(self, active: bool, *, delay_ms: int = 0, rotate_icon: bool = False):
-        """Enable the restrained running-state animation for this dashboard card."""
+[PT-BR]         self._pulse_timer.setInterval(33)
+
+[PT-BR]         self._pulse_timer.timeout.connect(self._advance_pulse)
+
+[PT-BR]         self.setBorderRadius(12)
+
+[PT-BR]         self._shadow = QGraphicsDropShadowEffect(self)
+
+[PT-BR]         self._shadow.setBlurRadius(18)
+
+[PT-BR]         self._shadow.setOffset(0, 3)
+
+[PT-BR]         self.setGraphicsEffect(self._shadow)
+
+[PT-BR]         qconfig.themeChangedFinished.connect(self._apply_surface_style)
+
+[PT-BR]         self._apply_surface_style()
+
+
+
+[PT-BR]     def set_accent(self, accent: str):
+
+[PT-BR]         self._accent = QColor(accent)
+
+[PT-BR]         self.update()
+
+
+
+[PT-BR]     def pulse(self, duration_ms: int = 360):
+
+[PT-BR]         self._pulse_until = max(self._pulse_until, time.monotonic() + duration_ms / 1000)
+
+[PT-BR]         if not self._pulse_timer.isActive():
+
+[PT-BR]             self._pulse_timer.start()
+
+[PT-BR]         self.update()
+
+
+
+[PT-BR]     def _advance_pulse(self):
+
+[PT-BR]         if time.monotonic() >= self._pulse_until:
+
+[PT-BR]             self._pulse_timer.stop()
+
+[PT-BR]         self.update()
+
+
+
+[PT-BR]     def _apply_surface_style(self, *_):
+
+[PT-BR]         shadow = QColor("#000000")
+
+[PT-BR]         shadow.setAlpha(70 if isDarkTheme() else 24)
+
+[PT-BR]         self._shadow.setColor(shadow)
+
+
+
+[PT-BR]     def paintEvent(self, _event):
+
+[PT-BR]         now = time.monotonic()
+
+[PT-BR]         pulse = 0.0
+
+[PT-BR]         if now < self._pulse_until:
+
+[PT-BR]             remaining = (self._pulse_until - now) / 0.36
+
+[PT-BR]             pulse = math.sin(max(0.0, min(1.0, remaining)) * math.pi)
+
+[PT-BR]         painter = QPainter(self)
+
+[PT-BR]         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+
+[PT-BR]         rect = self.rect().adjusted(1, 1, -1, -1)
+
+[PT-BR]         radius = 12.0
+
+[PT-BR]         accent = QColor(self._accent)
+
+[PT-BR]         glass = QLinearGradient(0, rect.top(), 0, rect.bottom())
+
+[PT-BR]         if isDarkTheme():
+
+[PT-BR]             glass.setColorAt(0, QColor(39, 51, 70, 198 if self.isHover else 186))
+
+[PT-BR]             glass.setColorAt(1, QColor(22, 30, 45, 178 if self.isHover else 164))
+
+[PT-BR]             highlight = QColor(255, 255, 255, 42)
+
+[PT-BR]             border = QColor(255, 255, 255, 38)
+
+[PT-BR]         else:
+
+[PT-BR]             glass.setColorAt(0, QColor(255, 255, 255, 222 if self.isHover else 208))
+
+[PT-BR]             glass.setColorAt(1, QColor(241, 245, 249, 200 if self.isHover else 184))
+
+[PT-BR]             highlight = QColor(255, 255, 255, 178)
+
+[PT-BR]             border = QColor(148, 163, 184, 48)
+
+[PT-BR]         painter.setPen(Qt.PenStyle.NoPen)
+
+[PT-BR]         painter.setBrush(glass)
+
+[PT-BR]         painter.drawRoundedRect(rect, radius, radius)
+
+[PT-BR]         radial = QRadialGradient(rect.right() - 12, rect.top() + 10, max(48, rect.width() * 0.36))
+
+[PT-BR]         tint = QColor(accent)
+
+[PT-BR]         tint.setAlpha(int((24 if isDarkTheme() else 14) + pulse * 24))
+
+[PT-BR]         radial.setColorAt(0, tint)
+
+[PT-BR]         radial.setColorAt(1, QColor(accent.red(), accent.green(), accent.blue(), 0))
+
+[PT-BR]         painter.setBrush(radial)
+
+[PT-BR]         painter.drawRoundedRect(rect, radius, radius)
+
+[PT-BR]         painter.setBrush(Qt.BrushStyle.NoBrush)
+
+[PT-BR]         painter.setPen(QPen(highlight, 1.0))
+
+[PT-BR]         painter.drawRoundedRect(rect.adjusted(1, 1, -1, -1), radius - 1, radius - 1)
+
+[PT-BR]         if pulse:
+
+[PT-BR]             border = QColor(accent)
+
+[PT-BR]             border.setAlpha(int(42 + pulse * 126))
+
+[PT-BR]         painter.setPen(QPen(border, 1.0))
+
+[PT-BR]         painter.drawRoundedRect(rect, radius, radius)
+
+
+
+
+
+[PT-BR] class MetricCard(CardWidget):
+
+[PT-BR]     def __init__(
+
+[PT-BR]         self,
+
+[PT-BR]         title: str,
+
+[PT-BR]         value: str = "--",
+
+[PT-BR]         detail: str = "",
+
+[PT-BR]         icon=None,
+
+[PT-BR]         parent=None,
+
+[PT-BR]         accent="#0E5CAD",
+
+[PT-BR]         animate_value_updates: bool = False,
+
+[PT-BR]     ):
+
+[PT-BR]         super().__init__(parent)
+
+[PT-BR]         self._accent = QColor(accent)
+
+[PT-BR]         self._animate_value_updates = animate_value_updates
+
+[PT-BR]         self._activity = False
+
+[PT-BR]         self._rotate_icon = False
+
+[PT-BR]         self._activity_delay = 0.0
+
+[PT-BR]         self._activity_started_at = 0.0
+
+[PT-BR]         self._pulse_until = 0.0
+
+[PT-BR]         self._animation_timer = QTimer(self)
+
+[PT-BR]         self._animation_timer.setInterval(33)  # 30 fps is ample for small dashboard accents.
+
+[PT-BR]         self._animation_timer.timeout.connect(self._advance_animation)
+
+[PT-BR]         self.setMinimumHeight(104)
+
+[PT-BR]         self.setBorderRadius(12)
+
+[PT-BR]         self._shadow = QGraphicsDropShadowEffect(self)
+
+[PT-BR]         self._shadow.setBlurRadius(18)
+
+[PT-BR]         self._shadow.setOffset(0, 3)
+
+[PT-BR]         self.setGraphicsEffect(self._shadow)
+
+[PT-BR]         root = QHBoxLayout(self)
+
+[PT-BR]         root.setContentsMargins(18, 14, 18, 14)
+
+[PT-BR]         root.setSpacing(14)
+
+[PT-BR]         self.icon_container = QWidget(self) if icon else None
+
+[PT-BR]         self.icon_widget = MetricIconWidget(icon.icon(color=QColor(accent)) if hasattr(icon, "icon") else icon, self.icon_container) if icon else None
+
+[PT-BR]         if self.icon_widget:
+
+[PT-BR]             self.icon_container.setFixedSize(42, 42)
+
+[PT-BR]             color = QColor(accent)
+
+[PT-BR]             self.icon_container.setStyleSheet(
+
+[PT-BR]                 f"background-color: rgba({color.red()}, {color.green()}, {color.blue()}, 38); border-radius: 10px;"
+
+[PT-BR]             )
+
+[PT-BR]             icon_layout = QHBoxLayout(self.icon_container)
+
+[PT-BR]             icon_layout.setContentsMargins(9, 9, 9, 9)
+
+[PT-BR]             self.icon_widget.setFixedSize(24, 24)
+
+[PT-BR]             icon_layout.addWidget(self.icon_widget)
+
+[PT-BR]             root.addWidget(self.icon_container, 0, Qt.AlignmentFlag.AlignTop)
+
+[PT-BR]         layout = QVBoxLayout()
+
+[PT-BR]         layout.setContentsMargins(0, 0, 0, 0)
+
+[PT-BR]         layout.setSpacing(4)
+
+[PT-BR]         self.title_label = BodyLabel(title, self)
+
+[PT-BR]         self.value_label = StrongBodyLabel(value, self)
+
+[PT-BR]         font = self.value_label.font()
+
+[PT-BR]         font.setPointSize(20)
+
+[PT-BR]         font.setBold(True)
+
+[PT-BR]         self.value_label.setFont(font)
+
+[PT-BR]         self.detail_label = BodyLabel(detail, self)
+
+[PT-BR]         layout.addWidget(self.title_label)
+
+[PT-BR]         layout.addWidget(self.value_label)
+
+[PT-BR]         layout.addWidget(self.detail_label)
+
+[PT-BR]         root.addLayout(layout, 1)
+
+[PT-BR]         qconfig.themeChangedFinished.connect(self._apply_text_colors)
+
+[PT-BR]         qconfig.themeChangedFinished.connect(self._apply_surface_style)
+
+[PT-BR]         self._apply_text_colors()
+
+[PT-BR]         self._apply_surface_style()
+
+
+
+[PT-BR]     def _apply_text_colors(self, *_):
+
+[PT-BR]         dark = isDarkTheme()
+
+[PT-BR]         title = "#CBD5E1" if dark else "#475569"
+
+[PT-BR]         detail = "#94A3B8" if dark else "#64748B"
+
+[PT-BR]         value = self._accent.lighter(135).name() if dark else self._accent.name()
+
+[PT-BR]         self.title_label.setStyleSheet(f"color: {title};")
+
+[PT-BR]         self.value_label.setStyleSheet(f"color: {value};")
+
+[PT-BR]         self.detail_label.setStyleSheet(f"color: {detail};")
+
+
+
+[PT-BR]     def _apply_surface_style(self, *_):
+
+[PT-BR]         shadow = QColor("#000000")
+
+[PT-BR]         shadow.setAlpha(70 if isDarkTheme() else 24)
+
+[PT-BR]         self._shadow.setColor(shadow)
+
+
+
+[PT-BR]     def set_clickable(self, clickable: bool = True):
+
+[PT-BR]         self.setClickEnabled(clickable)
+
+[PT-BR]         self.setCursor(Qt.CursorShape.PointingHandCursor if clickable else Qt.CursorShape.ArrowCursor)
+
+
+
+[PT-BR]     def set_value(self, value, detail: str | None = None):
+
+[PT-BR]         changed = self.value_label.text() != str(value)
+
+[PT-BR]         self.value_label.setText(str(value))
+
+[PT-BR]         if detail is not None:
+
+[PT-BR]             self.detail_label.setText(detail)
+
+[PT-BR]         if changed and self._activity and self._animate_value_updates:
+
+[PT-BR]             self.pulse()
+
+
+
+[PT-BR]     def set_activity(self, active: bool, *, delay_ms: int = 0, rotate_icon: bool = False):
+"""
         self._activity = active
         self._rotate_icon = active and rotate_icon
         self._activity_delay = delay_ms / 1000
@@ -745,87 +1253,165 @@ class MetricCard(CardWidget):
         self.update()
 
     def pulse(self, duration_ms: int = 360):
-        """Briefly acknowledge a metric change without changing the layout."""
-        self._pulse_until = max(self._pulse_until, time.monotonic() + duration_ms / 1000)
-        if not self._animation_timer.isActive():
-            self._animation_timer.start()
+"""
+[PT-BR]         self._pulse_until = max(self._pulse_until, time.monotonic() + duration_ms / 1000)
 
-    def _advance_animation(self):
-        now = time.monotonic()
-        self._advance_icon_rotation()
-        if not self._activity and now >= self._pulse_until:
-            self._animation_timer.stop()
-        self.update()
+[PT-BR]         if not self._animation_timer.isActive():
 
-    def paintEvent(self, event):
-        now = time.monotonic()
-        elapsed = now - self._activity_started_at - self._activity_delay
-        phase = max(0.0, elapsed) / 2.8
-        pulse = 0.0
-        if now < self._pulse_until:
-            remaining = (self._pulse_until - now) / 0.36
-            pulse = math.sin(max(0.0, min(1.0, remaining)) * math.pi)
-        painter = QPainter(self)
-        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-        radius = 12.0
-        rect = self.rect().adjusted(1, 1, -1, -1)
-        accent = QColor(self._accent)
+[PT-BR]             self._animation_timer.start()
 
-        # A translucent two-layer surface reads as glass while keeping the
-        # rendering path cheap and identical on every supported platform.
-        glass = QLinearGradient(0, rect.top(), 0, rect.bottom())
-        if isDarkTheme():
-            glass.setColorAt(0, QColor(39, 51, 70, 204 if self.isHover else 190))
-            glass.setColorAt(1, QColor(22, 30, 45, 184 if self.isHover else 170))
-            highlight = QColor(255, 255, 255, 42)
-            border_base = QColor(255, 255, 255, 38)
-        else:
-            glass.setColorAt(0, QColor(255, 255, 255, 224 if self.isHover else 210))
-            glass.setColorAt(1, QColor(241, 245, 249, 202 if self.isHover else 186))
-            highlight = QColor(255, 255, 255, 178)
-            border_base = QColor(148, 163, 184, 48)
-        painter.setPen(Qt.PenStyle.NoPen)
-        painter.setBrush(glass)
-        painter.drawRoundedRect(rect, radius, radius)
 
-        radial = QRadialGradient(rect.right() - 12, rect.top() + 10, max(48, rect.width() * 0.36))
-        tint = QColor(accent)
-        tint.setAlpha(24 if isDarkTheme() else 14)
-        tint.setAlpha(int(tint.alpha() + pulse * 20))
-        radial.setColorAt(0, tint)
-        radial.setColorAt(1, QColor(accent.red(), accent.green(), accent.blue(), 0))
-        painter.setBrush(radial)
-        painter.drawRoundedRect(rect, radius, radius)
 
-        # An inner top highlight makes the material feel layered rather than flat.
-        painter.setBrush(Qt.BrushStyle.NoBrush)
-        painter.setPen(QPen(highlight, 1.0))
-        painter.drawRoundedRect(rect.adjusted(1, 1, -1, -1), radius - 1, radius - 1)
-        if self._activity:
-            # A very low-opacity travelling wash gives activity context without obscuring text.
-            width = max(1, rect.width())
-            offset = (phase % 1.0) * width * 1.8 - width * 0.8
-            glow = QLinearGradient(offset, 0, offset + width * 0.7, 0)
-            transparent = QColor(accent)
-            transparent.setAlpha(0)
-            highlight = QColor(accent)
-            highlight.setAlpha(16 if not isDarkTheme() else 24)
-            glow.setColorAt(0, transparent)
-            glow.setColorAt(0.5, highlight)
-            glow.setColorAt(1, transparent)
-            painter.setPen(Qt.PenStyle.NoPen)
-            painter.setBrush(glow)
-            painter.drawRoundedRect(rect, radius, radius)
-        border = QColor(accent)
-        border.setAlpha(int(28 + pulse * 105 + (math.sin(phase * math.tau) + 1) * 8 if self._activity else 32 + pulse * 120))
-        if not self._activity and pulse == 0:
-            border = border_base
-        painter.setBrush(Qt.BrushStyle.NoBrush)
-        painter.setPen(QPen(border, 1.0))
-        painter.drawRoundedRect(rect, radius, radius)
+[PT-BR]     def _advance_animation(self):
 
-    def set_visual(self, icon=None, accent=None):
-        """Update the card icon and accent colors without rebuilding its layout."""
+[PT-BR]         now = time.monotonic()
+
+[PT-BR]         self._advance_icon_rotation()
+
+[PT-BR]         if not self._activity and now >= self._pulse_until:
+
+[PT-BR]             self._animation_timer.stop()
+
+[PT-BR]         self.update()
+
+
+
+[PT-BR]     def paintEvent(self, event):
+
+[PT-BR]         now = time.monotonic()
+
+[PT-BR]         elapsed = now - self._activity_started_at - self._activity_delay
+
+[PT-BR]         phase = max(0.0, elapsed) / 2.8
+
+[PT-BR]         pulse = 0.0
+
+[PT-BR]         if now < self._pulse_until:
+
+[PT-BR]             remaining = (self._pulse_until - now) / 0.36
+
+[PT-BR]             pulse = math.sin(max(0.0, min(1.0, remaining)) * math.pi)
+
+[PT-BR]         painter = QPainter(self)
+
+[PT-BR]         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+
+[PT-BR]         radius = 12.0
+
+[PT-BR]         rect = self.rect().adjusted(1, 1, -1, -1)
+
+[PT-BR]         accent = QColor(self._accent)
+
+
+
+[PT-BR]         # A translucent two-layer surface reads as glass while keeping the
+
+[PT-BR]         # rendering path cheap and identical on every supported platform.
+
+[PT-BR]         glass = QLinearGradient(0, rect.top(), 0, rect.bottom())
+
+[PT-BR]         if isDarkTheme():
+
+[PT-BR]             glass.setColorAt(0, QColor(39, 51, 70, 204 if self.isHover else 190))
+
+[PT-BR]             glass.setColorAt(1, QColor(22, 30, 45, 184 if self.isHover else 170))
+
+[PT-BR]             highlight = QColor(255, 255, 255, 42)
+
+[PT-BR]             border_base = QColor(255, 255, 255, 38)
+
+[PT-BR]         else:
+
+[PT-BR]             glass.setColorAt(0, QColor(255, 255, 255, 224 if self.isHover else 210))
+
+[PT-BR]             glass.setColorAt(1, QColor(241, 245, 249, 202 if self.isHover else 186))
+
+[PT-BR]             highlight = QColor(255, 255, 255, 178)
+
+[PT-BR]             border_base = QColor(148, 163, 184, 48)
+
+[PT-BR]         painter.setPen(Qt.PenStyle.NoPen)
+
+[PT-BR]         painter.setBrush(glass)
+
+[PT-BR]         painter.drawRoundedRect(rect, radius, radius)
+
+
+
+[PT-BR]         radial = QRadialGradient(rect.right() - 12, rect.top() + 10, max(48, rect.width() * 0.36))
+
+[PT-BR]         tint = QColor(accent)
+
+[PT-BR]         tint.setAlpha(24 if isDarkTheme() else 14)
+
+[PT-BR]         tint.setAlpha(int(tint.alpha() + pulse * 20))
+
+[PT-BR]         radial.setColorAt(0, tint)
+
+[PT-BR]         radial.setColorAt(1, QColor(accent.red(), accent.green(), accent.blue(), 0))
+
+[PT-BR]         painter.setBrush(radial)
+
+[PT-BR]         painter.drawRoundedRect(rect, radius, radius)
+
+
+
+[PT-BR]         # An inner top highlight makes the material feel layered rather than flat.
+
+[PT-BR]         painter.setBrush(Qt.BrushStyle.NoBrush)
+
+[PT-BR]         painter.setPen(QPen(highlight, 1.0))
+
+[PT-BR]         painter.drawRoundedRect(rect.adjusted(1, 1, -1, -1), radius - 1, radius - 1)
+
+[PT-BR]         if self._activity:
+
+[PT-BR]             # A very low-opacity travelling wash gives activity context without obscuring text.
+
+[PT-BR]             width = max(1, rect.width())
+
+[PT-BR]             offset = (phase % 1.0) * width * 1.8 - width * 0.8
+
+[PT-BR]             glow = QLinearGradient(offset, 0, offset + width * 0.7, 0)
+
+[PT-BR]             transparent = QColor(accent)
+
+[PT-BR]             transparent.setAlpha(0)
+
+[PT-BR]             highlight = QColor(accent)
+
+[PT-BR]             highlight.setAlpha(16 if not isDarkTheme() else 24)
+
+[PT-BR]             glow.setColorAt(0, transparent)
+
+[PT-BR]             glow.setColorAt(0.5, highlight)
+
+[PT-BR]             glow.setColorAt(1, transparent)
+
+[PT-BR]             painter.setPen(Qt.PenStyle.NoPen)
+
+[PT-BR]             painter.setBrush(glow)
+
+[PT-BR]             painter.drawRoundedRect(rect, radius, radius)
+
+[PT-BR]         border = QColor(accent)
+
+[PT-BR]         border.setAlpha(int(28 + pulse * 105 + (math.sin(phase * math.tau) + 1) * 8 if self._activity else 32 + pulse * 120))
+
+[PT-BR]         if not self._activity and pulse == 0:
+
+[PT-BR]             border = border_base
+
+[PT-BR]         painter.setBrush(Qt.BrushStyle.NoBrush)
+
+[PT-BR]         painter.setPen(QPen(border, 1.0))
+
+[PT-BR]         painter.drawRoundedRect(rect, radius, radius)
+
+
+
+[PT-BR]     def set_visual(self, icon=None, accent=None):
+"""
         if accent is not None:
             self._accent = QColor(accent)
         if self.icon_widget and icon is not None:

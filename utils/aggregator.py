@@ -20,13 +20,17 @@ from utils.i18n import t
 
 
 def _preserve_unmeasured_history(test_copy, previous_result, base_data):
-    """Keep last-known-good results that quick mode did not retest.
+"""
 
-    A quick run may stop after reaching its valid-result target. In that case
-    an old result must not disappear merely because it was not included in
-    this run's measured set. Explicitly tested failures are excluded by their
-    stable result id, and frozen URLs are still allowed to age out normally.
-    """
+
+[PT-BR]     A quick run may stop after reaching its valid-result target. In that case
+
+[PT-BR]     an old result must not disappear merely because it was not included in
+
+[PT-BR]     this run's measured set. Explicitly tested failures are excluded by their
+
+[PT-BR]     stable result id, and frozen URLs are still allowed to age out normally.
+"""
     preserved = copy.deepcopy(test_copy or {})
 
     for category, channels in (base_data or {}).items():
@@ -59,9 +63,9 @@ def _preserve_unmeasured_history(test_copy, previous_result, base_data):
 
 
 class ResultAggregator:
-    """
-    Aggregates test results and periodically writes sorted views to files.
-    """
+"""
+[PT-BR]     Aggregates test results and periodically writes sorted views to files.
+"""
 
     def __init__(
             self,

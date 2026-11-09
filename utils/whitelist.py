@@ -21,13 +21,17 @@ def _dedupe_preserve_order(values: List[str]) -> List[str]:
 
 
 def load_whitelist_maps(path: str = constants.whitelist_path) -> WhitelistMaps:
-    """
-    Load whitelist maps from the given path.
-    Returns two dictionaries:
-      - exact: channel_name -> list of exact whitelist entries
-      - keywords: channel_name -> list of keyword whitelist entries
-    The special key "" (empty string) is used for global entries.
-    """
+"""
+[PT-BR]     Load whitelist maps from the given path.
+
+[PT-BR]     Returns two dictionaries:
+
+[PT-BR]       - exact: channel_name -> list of exact whitelist entries
+
+[PT-BR]       - keywords: channel_name -> list of keyword whitelist entries
+
+[PT-BR]     The special key "" (empty string) is used for global entries.
+"""
 
     exact = defaultdict(list)
     keywords = defaultdict(list)
@@ -69,15 +73,21 @@ def load_whitelist_maps(path: str = constants.whitelist_path) -> WhitelistMaps:
 
 
 def is_url_whitelisted(data_map: WhitelistMaps, url: str, channel_name: str | None = None) -> bool:
-    """
-    Check if the given URL is whitelisted for the specified channel.
-    If channel_name is None, only global whitelist entries are considered.
-    1. Exact match (channel-specific)
-    2. Exact match (global)
-    3. Keyword match (channel-specific)
-    4. Keyword match (global)
-    5. If none match, return False
-    """
+"""
+[PT-BR]     Check if the given URL is whitelisted for the specified channel.
+
+[PT-BR]     If channel_name is None, only global whitelist entries are considered.
+
+[PT-BR]     1. Exact match (channel-specific)
+
+[PT-BR]     2. Exact match (global)
+
+[PT-BR]     3. Keyword match (channel-specific)
+
+[PT-BR]     4. Keyword match (global)
+
+[PT-BR]     5. If none match, return False
+"""
     if not url or not data_map:
         return False
 
@@ -106,19 +116,20 @@ def is_url_whitelisted(data_map: WhitelistMaps, url: str, channel_name: str | No
 
 
 def get_whitelist_url(data_map: WhitelistMaps, channel_name: str | None = None) -> List[str]:
-    """
-    Get the list of whitelisted URLs for the specified channel.
-    If channel_name is None, only global whitelist entries are considered.
-    """
+"""
+[PT-BR]     Get the list of whitelisted URLs for the specified channel.
+
+[PT-BR]     If channel_name is None, only global whitelist entries are considered.
+"""
     exact_map, _ = data_map
     channel_key = channel_name or ""
     return _dedupe_preserve_order(exact_map.get(channel_key, []) + exact_map.get("", []))
 
 
 def get_whitelist_total_count(data_map: WhitelistMaps) -> int:
-    """
-    Get the total count of unique whitelist entries across all channels.
-    """
+"""
+[PT-BR]     Get the total count of unique whitelist entries across all channels.
+"""
     exact_map, keyword_map = data_map
     unique_entries = set()
 

@@ -190,8 +190,8 @@ def ensure_channel_repository(db_path: str, *, journal_mode="WAL") -> None:
                 PRAGMA user_version=2;
                 """
             )
-            # These names expose the four-layer model without breaking the
-            # legacy ``channel_results`` table used by older integrations.
+            # [PT-BR] These names expose the four-layer model without breaking the
+            # [PT-BR] legacy ``channel_results`` table used by older integrations.
             conn.execute(
                 """
                 CREATE VIEW IF NOT EXISTS channel_candidates AS
@@ -307,16 +307,23 @@ def _is_valid(item: dict) -> bool:
 
 
 def _is_measured_valid(item: dict) -> bool:
-    """A candidate is valid only after measurement, except retained sources."""
-    return _is_valid(item) and (
-        item.get("tested_at") is not None
-        or item.get("origin") in {"whitelist", "hls"}
-    )
+"""
+[PT-BR]     return _is_valid(item) and (
+
+[PT-BR]         item.get("tested_at") is not None
+
+[PT-BR]         or item.get("origin") in {"whitelist", "hls"}
+
+[PT-BR]     )
 
 
-def _refresh_channel_summary(conn, channel_key: str) -> None:
-    rows = conn.execute(
-        """
+
+
+
+[PT-BR] def _refresh_channel_summary(conn, channel_key: str) -> None:
+
+[PT-BR]     rows = conn.execute(
+"""
         SELECT speed, delay, resolution, valid, selected_rank, tested_at
         FROM channel_results
         WHERE channel_key=?
@@ -1289,38 +1296,67 @@ def set_channel_selection(
 
 
 def _auto_selection_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """Order measured candidates using the configured automatic policy."""
-    dimensions = list(config.sort_by)
-
-    def number(value, default):
-        try:
-            value = float(value)
-            return value if math.isfinite(value) else default
-        except (TypeError, ValueError):
-            return default
-
-    def key(row):
-        # Whitelist/HLS entries are intentionally retained and should remain
-        # ahead of ordinary probe results, matching the export sorter.
-        retained = 0 if row.get("origin") in {"whitelist", "hls"} else 1
-        values = []
-        for dimension in dimensions:
-            if dimension == "speed":
-                values.append(-number(row.get("speed"), -math.inf))
-            elif dimension == "delay":
-                values.append(number(row.get("delay"), math.inf))
-            else:
-                values.append(-_resolution_value(row.get("resolution")))
-        return retained, *values, str(row.get("result_key") or "")
-
-    return sorted(
-        [row for row in rows if _is_measured_valid(row)],
-        key=key,
-    )
+"""
+[PT-BR]     dimensions = list(config.sort_by)
 
 
-def reset_channel_selection(db_path: str, channel_key: str) -> None:
-    """Clear manual preferences and immediately recompute automatic output."""
+
+[PT-BR]     def number(value, default):
+
+[PT-BR]         try:
+
+[PT-BR]             value = float(value)
+
+[PT-BR]             return value if math.isfinite(value) else default
+
+[PT-BR]         except (TypeError, ValueError):
+
+[PT-BR]             return default
+
+
+
+[PT-BR]     def key(row):
+
+[PT-BR]         # Whitelist/HLS entries are intentionally retained and should remain
+
+[PT-BR]         # ahead of ordinary probe results, matching the export sorter.
+
+[PT-BR]         retained = 0 if row.get("origin") in {"whitelist", "hls"} else 1
+
+[PT-BR]         values = []
+
+[PT-BR]         for dimension in dimensions:
+
+[PT-BR]             if dimension == "speed":
+
+[PT-BR]                 values.append(-number(row.get("speed"), -math.inf))
+
+[PT-BR]             elif dimension == "delay":
+
+[PT-BR]                 values.append(number(row.get("delay"), math.inf))
+
+[PT-BR]             else:
+
+[PT-BR]                 values.append(-_resolution_value(row.get("resolution")))
+
+[PT-BR]         return retained, *values, str(row.get("result_key") or "")
+
+
+
+[PT-BR]     return sorted(
+
+[PT-BR]         [row for row in rows if _is_measured_valid(row)],
+
+[PT-BR]         key=key,
+
+[PT-BR]     )
+
+
+
+
+
+[PT-BR] def reset_channel_selection(db_path: str, channel_key: str) -> None:
+"""
     ensure_channel_repository(db_path)
     with _LOCK:
         conn = get_db_connection(db_path)
@@ -1338,19 +1374,29 @@ def reset_channel_selection(db_path: str, channel_key: str) -> None:
 
 
 def auto_select_channel(db_path: str, channel_key: str) -> list[dict[str, Any]]:
-    """Recompute and persist automatic output selection for one channel."""
-    rows = list_channel_results(db_path, channel_key)
-    selected = _auto_selection_rows(rows)[: config.output_urls_limit]
-    set_channel_selection(db_path, channel_key, selected, mode="auto")
-    return selected
+"""
+[PT-BR]     rows = list_channel_results(db_path, channel_key)
+
+[PT-BR]     selected = _auto_selection_rows(rows)[: config.output_urls_limit]
+
+[PT-BR]     set_channel_selection(db_path, channel_key, selected, mode="auto")
+
+[PT-BR]     return selected
 
 
-def _load_manual_selections(db_path: str) -> dict[str, list[str]]:
-    ensure_channel_repository(db_path)
-    conn = get_db_connection(db_path)
-    try:
-        rows = conn.execute(
-            """
+
+
+
+[PT-BR] def _load_manual_selections(db_path: str) -> dict[str, list[str]]:
+
+[PT-BR]     ensure_channel_repository(db_path)
+
+[PT-BR]     conn = get_db_connection(db_path)
+
+[PT-BR]     try:
+
+[PT-BR]         rows = conn.execute(
+"""
             SELECT c.channel_key, s.result_key
             FROM channels c
             LEFT JOIN channel_selection s ON s.channel_key=c.channel_key

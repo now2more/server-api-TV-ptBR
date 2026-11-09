@@ -10,9 +10,9 @@ from utils.tools import resource_path
 
 class SubscribeUI:
     def init_ui(self, root):
-        """
-        Init subscribe UI
-        """
+"""
+[PT-BR]         Init subscribe UI
+"""
         frame_subscribe_open_subscribe = tk.Frame(root)
         frame_subscribe_open_subscribe.pack(fill=tk.X)
 

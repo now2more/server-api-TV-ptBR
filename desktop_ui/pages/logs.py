@@ -37,9 +37,9 @@ class LogsPage(QWidget):
         self.search.setPlaceholderText(t("desktop.search_logs"))
         auto_scroll_text = t("desktop.auto_scroll")
         self.autoscroll = SwitchButton(auto_scroll_text, self)
-        # SwitchButton uses separate labels for the checked and unchecked
-        # states. Keep the setting name visible instead of showing its
-        # default checked-state label ("On").
+        # [PT-BR] SwitchButton uses separate labels for the checked and unchecked
+        # [PT-BR] states. Keep the setting name visible instead of showing its
+        # [PT-BR] default checked-state label ("On").
         self.autoscroll.setOnText(auto_scroll_text)
         self.autoscroll.setOffText(auto_scroll_text)
         self.autoscroll.setChecked(True)
@@ -152,8 +152,8 @@ class LogsPage(QWidget):
                         self._cleared_checkpoints.pop(path, None)
                 file.seek(offset)
                 content = file.read().decode("utf-8", errors="replace")
-        # QPlainTextEdit does not need a trailing empty line, and normalizing it
-        # keeps file-backed refreshes consistent with append_runtime().
+        # [PT-BR] QPlainTextEdit does not need a trailing empty line, and normalizing it
+        # [PT-BR] keeps file-backed refreshes consistent with append_runtime().
         content = content.rstrip("\r\n")
         if not self.show_timestamps.isChecked():
             content = "\n".join(_TIMESTAMP_PREFIX.sub("", line) for line in content.splitlines())
@@ -180,7 +180,7 @@ class LogsPage(QWidget):
 
     @staticmethod
     def _configure_switch_text(switch, text):
-        # SwitchButton has independent labels for checked and unchecked states.
+        # [PT-BR] SwitchButton has independent labels for checked and unchecked states.
         switch.setOnText(text)
         switch.setOffText(text)
 

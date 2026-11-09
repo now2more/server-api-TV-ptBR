@@ -45,131 +45,253 @@ _LEADING_DECORATIONS = (
 
 
 def redact_url(value: str | None) -> str | None:
-    """Hide credentials and sensitive query values while preserving diagnostics."""
-    if not value or not isinstance(value, str):
-        return value
-    try:
-        parts = urlsplit(value)
-        if not parts.scheme or not parts.netloc:
-            return value
-        hostname = parts.hostname or ""
-        if ":" in hostname and not hostname.startswith("["):
-            hostname = f"[{hostname}]"
-        port = f":{parts.port}" if parts.port else ""
-        netloc = f"{hostname}{port}"
-        query = urlencode(
-            [
-                (key, "***" if _SENSITIVE_QUERY_KEY.search(key) else item_value)
-                for key, item_value in parse_qsl(parts.query, keep_blank_values=True)
-            ],
-            doseq=True,
-        )
-        return urlunsplit((parts.scheme, netloc, parts.path, query, parts.fragment))
-    except (TypeError, ValueError):
-        return value
+"""
+[PT-BR]     if not value or not isinstance(value, str):
+
+[PT-BR]         return value
+
+[PT-BR]     try:
+
+[PT-BR]         parts = urlsplit(value)
+
+[PT-BR]         if not parts.scheme or not parts.netloc:
+
+[PT-BR]             return value
+
+[PT-BR]         hostname = parts.hostname or ""
+
+[PT-BR]         if ":" in hostname and not hostname.startswith("["):
+
+[PT-BR]             hostname = f"[{hostname}]"
+
+[PT-BR]         port = f":{parts.port}" if parts.port else ""
+
+[PT-BR]         netloc = f"{hostname}{port}"
+
+[PT-BR]         query = urlencode(
+
+[PT-BR]             [
+
+[PT-BR]                 (key, "***" if _SENSITIVE_QUERY_KEY.search(key) else item_value)
+
+[PT-BR]                 for key, item_value in parse_qsl(parts.query, keep_blank_values=True)
+
+[PT-BR]             ],
+
+[PT-BR]             doseq=True,
+
+[PT-BR]         )
+
+[PT-BR]         return urlunsplit((parts.scheme, netloc, parts.path, query, parts.fragment))
+
+[PT-BR]     except (TypeError, ValueError):
+
+[PT-BR]         return value
 
 
-def sanitize_fields(value: Any, key: str = "") -> Any:
-    if isinstance(value, dict):
-        return {str(k): sanitize_fields(v, str(k)) for k, v in value.items()}
-    if isinstance(value, (list, tuple, set)):
-        return [sanitize_fields(item, key) for item in value]
-    if isinstance(value, str) and ("url" in key.lower() or value.startswith(("http://", "https://", "rtmp://", "rtsp://"))):
-        return redact_url(value)
-    return value
 
 
-def redact_urls_in_text(value: str) -> str:
-    return _URL_IN_TEXT.sub(lambda match: redact_url(match.group(0)) or "", value)
+
+[PT-BR] def sanitize_fields(value: Any, key: str = "") -> Any:
+
+[PT-BR]     if isinstance(value, dict):
+
+[PT-BR]         return {str(k): sanitize_fields(v, str(k)) for k, v in value.items()}
+
+[PT-BR]     if isinstance(value, (list, tuple, set)):
+
+[PT-BR]         return [sanitize_fields(item, key) for item in value]
+
+[PT-BR]     if isinstance(value, str) and ("url" in key.lower() or value.startswith(("http://", "https://", "rtmp://", "rtsp://"))):
+
+[PT-BR]         return redact_url(value)
+
+[PT-BR]     return value
 
 
-def normalize_message(value: str) -> str:
-    message = redact_urls_in_text(value).strip()
-    changed = True
-    while changed:
-        changed = False
-        for decoration in _LEADING_DECORATIONS:
-            if message.startswith(decoration):
-                message = message[len(decoration):].lstrip()
-                changed = True
-                break
-    return message
 
 
-@dataclass(slots=True)
-class ReportEvent:
-    event: str
-    message: str
-    level: str = "INFO"
-    run_id: str | int | None = None
-    phase: str | None = None
-    timestamp: str = field(default_factory=lambda: datetime.now().astimezone().isoformat(timespec="seconds"))
-    data: dict[str, Any] = field(default_factory=dict)
 
-    def payload(self) -> dict[str, Any]:
-        result = asdict(self)
-        result["data"] = sanitize_fields(result["data"])
-        return result
+[PT-BR] def redact_urls_in_text(value: str) -> str:
+
+[PT-BR]     return _URL_IN_TEXT.sub(lambda match: redact_url(match.group(0)) or "", value)
 
 
-class _RuntimeFileSink:
-    def __init__(self, text_path: str, jsonl_path: str):
-        os.makedirs(os.path.dirname(text_path) or ".", exist_ok=True)
-        self._lock = threading.RLock()
-        self._jsonl_path = jsonl_path
-        os.makedirs(os.path.dirname(jsonl_path) or ".", exist_ok=True)
-        self._logger = logging.getLogger(f"iptv.runtime.{id(self)}")
-        self._logger.setLevel(logging.INFO)
-        self._logger.propagate = False
-        handler = RotatingFileHandler(
-            text_path,
-            maxBytes=5 * 1024 * 1024,
-            backupCount=2,
-            encoding="utf-8",
-            delay=True,
-        )
-        handler.setFormatter(logging.Formatter("%(message)s"))
-        self._logger.handlers.clear()
-        self._logger.addHandler(handler)
-        self._json_logger = logging.getLogger(f"iptv.runtime.json.{id(self)}")
-        self._json_logger.setLevel(logging.INFO)
-        self._json_logger.propagate = False
-        json_handler = RotatingFileHandler(
-            jsonl_path,
-            maxBytes=10 * 1024 * 1024,
-            backupCount=2,
-            encoding="utf-8",
-            delay=True,
-        )
-        json_handler.setFormatter(logging.Formatter("%(message)s"))
-        self._json_logger.handlers.clear()
-        self._json_logger.addHandler(json_handler)
-
-    def emit(self, event: ReportEvent):
-        payload = event.payload()
-        context = []
-        if event.run_id is not None:
-            context.append(f"run={event.run_id}")
-        if event.phase:
-            context.append(f"phase={event.phase}")
-        context.append(f"event={event.event}")
-        suffix = f" [{' '.join(context)}]" if context else ""
-        line = f"{event.timestamp} {event.level:<7}{suffix} {event.message}"
-        with self._lock:
-            self._logger.log(getattr(logging, event.level, logging.INFO), line)
-            self._json_logger.info(json.dumps(payload, ensure_ascii=False, default=str))
-
-    def close(self):
-        with self._lock:
-            for logger in (self._logger, self._json_logger):
-                for handler in logger.handlers[:]:
-                    handler.flush()
-                    handler.close()
-                    logger.removeHandler(handler)
 
 
-class Reporter:
-    """One reporting facade for terminal, runtime files, and desktop callbacks."""
+
+[PT-BR] def normalize_message(value: str) -> str:
+
+[PT-BR]     message = redact_urls_in_text(value).strip()
+
+[PT-BR]     changed = True
+
+[PT-BR]     while changed:
+
+[PT-BR]         changed = False
+
+[PT-BR]         for decoration in _LEADING_DECORATIONS:
+
+[PT-BR]             if message.startswith(decoration):
+
+[PT-BR]                 message = message[len(decoration):].lstrip()
+
+[PT-BR]                 changed = True
+
+[PT-BR]                 break
+
+[PT-BR]     return message
+
+
+
+
+
+[PT-BR] @dataclass(slots=True)
+
+[PT-BR] class ReportEvent:
+
+[PT-BR]     event: str
+
+[PT-BR]     message: str
+
+[PT-BR]     level: str = "INFO"
+
+[PT-BR]     run_id: str | int | None = None
+
+[PT-BR]     phase: str | None = None
+
+[PT-BR]     timestamp: str = field(default_factory=lambda: datetime.now().astimezone().isoformat(timespec="seconds"))
+
+[PT-BR]     data: dict[str, Any] = field(default_factory=dict)
+
+
+
+[PT-BR]     def payload(self) -> dict[str, Any]:
+
+[PT-BR]         result = asdict(self)
+
+[PT-BR]         result["data"] = sanitize_fields(result["data"])
+
+[PT-BR]         return result
+
+
+
+
+
+[PT-BR] class _RuntimeFileSink:
+
+[PT-BR]     def __init__(self, text_path: str, jsonl_path: str):
+
+[PT-BR]         os.makedirs(os.path.dirname(text_path) or ".", exist_ok=True)
+
+[PT-BR]         self._lock = threading.RLock()
+
+[PT-BR]         self._jsonl_path = jsonl_path
+
+[PT-BR]         os.makedirs(os.path.dirname(jsonl_path) or ".", exist_ok=True)
+
+[PT-BR]         self._logger = logging.getLogger(f"iptv.runtime.{id(self)}")
+
+[PT-BR]         self._logger.setLevel(logging.INFO)
+
+[PT-BR]         self._logger.propagate = False
+
+[PT-BR]         handler = RotatingFileHandler(
+
+[PT-BR]             text_path,
+
+[PT-BR]             maxBytes=5 * 1024 * 1024,
+
+[PT-BR]             backupCount=2,
+
+[PT-BR]             encoding="utf-8",
+
+[PT-BR]             delay=True,
+
+[PT-BR]         )
+
+[PT-BR]         handler.setFormatter(logging.Formatter("%(message)s"))
+
+[PT-BR]         self._logger.handlers.clear()
+
+[PT-BR]         self._logger.addHandler(handler)
+
+[PT-BR]         self._json_logger = logging.getLogger(f"iptv.runtime.json.{id(self)}")
+
+[PT-BR]         self._json_logger.setLevel(logging.INFO)
+
+[PT-BR]         self._json_logger.propagate = False
+
+[PT-BR]         json_handler = RotatingFileHandler(
+
+[PT-BR]             jsonl_path,
+
+[PT-BR]             maxBytes=10 * 1024 * 1024,
+
+[PT-BR]             backupCount=2,
+
+[PT-BR]             encoding="utf-8",
+
+[PT-BR]             delay=True,
+
+[PT-BR]         )
+
+[PT-BR]         json_handler.setFormatter(logging.Formatter("%(message)s"))
+
+[PT-BR]         self._json_logger.handlers.clear()
+
+[PT-BR]         self._json_logger.addHandler(json_handler)
+
+
+
+[PT-BR]     def emit(self, event: ReportEvent):
+
+[PT-BR]         payload = event.payload()
+
+[PT-BR]         context = []
+
+[PT-BR]         if event.run_id is not None:
+
+[PT-BR]             context.append(f"run={event.run_id}")
+
+[PT-BR]         if event.phase:
+
+[PT-BR]             context.append(f"phase={event.phase}")
+
+[PT-BR]         context.append(f"event={event.event}")
+
+[PT-BR]         suffix = f" [{' '.join(context)}]" if context else ""
+
+[PT-BR]         line = f"{event.timestamp} {event.level:<7}{suffix} {event.message}"
+
+[PT-BR]         with self._lock:
+
+[PT-BR]             self._logger.log(getattr(logging, event.level, logging.INFO), line)
+
+[PT-BR]             self._json_logger.info(json.dumps(payload, ensure_ascii=False, default=str))
+
+
+
+[PT-BR]     def close(self):
+
+[PT-BR]         with self._lock:
+
+[PT-BR]             for logger in (self._logger, self._json_logger):
+
+[PT-BR]                 for handler in logger.handlers[:]:
+
+[PT-BR]                     handler.flush()
+
+[PT-BR]                     handler.close()
+
+[PT-BR]                     logger.removeHandler(handler)
+
+
+
+
+
+[PT-BR] class Reporter:
+"""
 
     def __init__(
         self,

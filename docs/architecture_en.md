@@ -1,4 +1,4 @@
-# Architecture and Runtime Flow
+[PT-BR] # Architecture and Runtime Flow
 
 <p align="center">
   <a href="../README_en.md">Project home</a> ·

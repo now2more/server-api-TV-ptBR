@@ -10,9 +10,9 @@ from utils.tools import resource_path
 
 class EpgUI:
     def init_ui(self, root):
-        """
-        Init epg UI
-        """
+"""
+[PT-BR]         Init epg UI
+"""
         frame_epg_open_epg = tk.Frame(root)
         frame_epg_open_epg.pack(fill=tk.X)
 

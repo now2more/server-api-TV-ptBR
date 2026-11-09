@@ -1,4 +1,4 @@
-# Configuration
+[PT-BR] # Configuration
 
 <p align="center">
   <a href="../README_en.md">Project home</a> ·

@@ -16,18 +16,27 @@ headers = {
 
 
 def _merge_headers(custom: dict | None) -> dict:
-    """Return a new headers dict merging default headers with custom headers (custom wins)."""
-    result = headers.copy()
-    if custom:
-        for k, v in custom.items():
-            if v is None:
-                continue
-            result[k] = v
-    return result
+"""
+[PT-BR]     result = headers.copy()
+
+[PT-BR]     if custom:
+
+[PT-BR]         for k, v in custom.items():
+
+[PT-BR]             if v is None:
+
+[PT-BR]                 continue
+
+[PT-BR]             result[k] = v
+
+[PT-BR]     return result
 
 
-def get_requests(url, data=None, proxy=None, timeout=30, headers_override: dict | None = None):
-    """
+
+
+
+[PT-BR] def get_requests(url, data=None, proxy=None, timeout=30, headers_override: dict | None = None):
+"""
     Get the response by requests. Accepts headers_override to set request headers.
     """
     if proxy is None:
@@ -57,9 +66,9 @@ def get_requests(url, data=None, proxy=None, timeout=30, headers_override: dict 
 
 
 def get_soup_requests(url, data=None, proxy=None, timeout=30, headers_override: dict | None = None):
-    """
-    Get the soup by requests, pass headers_override to underlying call.
-    """
+"""
+[PT-BR]     Get the soup by requests, pass headers_override to underlying call.
+"""
     response = get_requests(url, data, proxy, timeout, headers_override)
     source = re.sub(r"<!--.*?-->", "", response.text or "", flags=re.DOTALL)
     soup = BeautifulSoup(source, "html.parser")

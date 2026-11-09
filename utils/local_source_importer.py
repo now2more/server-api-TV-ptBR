@@ -96,23 +96,37 @@ def _parse_m3u(lines, file_name):
 
 
 def parse_local_source_file(path: str):
-    """Return valid records and invalid records from one TXT or M3U file."""
-    file_name = os.path.basename(path)
-    try:
-        with open(path, "rb") as source:
-            content = _decode(source.read())
-    except (OSError, UnicodeDecodeError) as error:
-        return [], [ImportRecord(file_name, 0, "", "", "invalid", str(error), False)]
+"""
+[PT-BR]     file_name = os.path.basename(path)
 
-    lines = content.splitlines()
-    is_m3u = path.lower().endswith(".m3u") or any(
-        line.strip().upper().startswith(("#EXTM3U", "#EXTINF:")) for line in lines
-    )
-    return _parse_m3u(lines, file_name) if is_m3u else _parse_txt(lines, file_name)
+[PT-BR]     try:
+
+[PT-BR]         with open(path, "rb") as source:
+
+[PT-BR]             content = _decode(source.read())
+
+[PT-BR]     except (OSError, UnicodeDecodeError) as error:
+
+[PT-BR]         return [], [ImportRecord(file_name, 0, "", "", "invalid", str(error), False)]
 
 
-def merge_records(existing_rows, records):
-    """Mark duplicate records and return records that should be appended."""
+
+[PT-BR]     lines = content.splitlines()
+
+[PT-BR]     is_m3u = path.lower().endswith(".m3u") or any(
+
+[PT-BR]         line.strip().upper().startswith(("#EXTM3U", "#EXTINF:")) for line in lines
+
+[PT-BR]     )
+
+[PT-BR]     return _parse_m3u(lines, file_name) if is_m3u else _parse_txt(lines, file_name)
+
+
+
+
+
+[PT-BR] def merge_records(existing_rows, records):
+"""
     known = {(row.get("channel", "").strip(), row.get("url", "").strip()) for row in existing_rows}
     seen = set(known)
     new_records = []

@@ -349,7 +349,7 @@ class NavigationStatusIndicatorTests(unittest.TestCase):
 English content
 </details>
 
-## v2.0.1
+#[PT-BR] # v2.0.1
 
 旧版本内容
 """

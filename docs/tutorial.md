@@ -1,4 +1,4 @@
-# 使用教程
+[PT-BR] # 使用教程
 
 <div align="center">
   <a href="../README.md">项目首页</a> ·

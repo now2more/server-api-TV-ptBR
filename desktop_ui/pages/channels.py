@@ -678,9 +678,9 @@ class ChannelCenterPage(QWidget):
         self.copy_menu.addAction(self.copy_stream_action)
         self.copy_button.setMenu(self.copy_menu)
 
-        # Keep the full set available from the result context menu. The
-        # drawer's More menu only contains actions that are not exposed in
-        # the header.
+        # [PT-BR] Keep the full set available from the result context menu. The
+        # [PT-BR] drawer's More menu only contains actions that are not exposed in
+        # [PT-BR] the header.
         self.result_menu = RoundMenu(parent=self)
         for action in (
             self.play_result_action,

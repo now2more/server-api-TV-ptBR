@@ -11,9 +11,9 @@ from utils.tools import resource_path, get_public_url
 class DefaultUI:
 
     def init_ui(self, root):
-        """
-        Init default UI
-        """
+"""
+[PT-BR]         Init default UI
+"""
         frame_default_source_file = tk.Frame(root)
         frame_default_source_file.pack(fill=tk.X)
         frame_default_source_file_column1 = tk.Frame(frame_default_source_file)

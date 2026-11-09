@@ -723,8 +723,8 @@ class RtmpPage(QWidget):
     def _apply_chart_theme(self, *_):
         dark = isDarkTheme()
         line = QColor("#60A5FA" if dark else "#2563EB")
-        # Let the chart canvas inherit the rounded CardWidget surface.  Filling it
-        # with white here previously left a square background inside the card.
+        # [PT-BR] Let the chart canvas inherit the rounded CardWidget surface.  Filling it
+        # [PT-BR] with white here previously left a square background inside the card.
         self.chart.setBackgroundVisible(False)
         self.chart.setPlotAreaBackgroundVisible(False)
         self.chart_view.setBackgroundBrush(QBrush(Qt.BrushStyle.NoBrush))

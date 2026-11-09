@@ -88,8 +88,8 @@ BOOLEAN_KEYS = {
 
 CONFIG_SCHEMA = {
     **{key: ConfigRule(kind="boolean") for key in BOOLEAN_KEYS},
-    # ``urls_limit`` is retained as a backwards-compatible alias.  New
-    # configurations should use the output and speed-test settings below.
+    # [PT-BR] ``urls_limit`` is retained as a backwards-compatible alias.  New
+    # [PT-BR] configurations should use the output and speed-test settings below.
     "urls_limit": ConfigRule(kind="integer", minimum=1),
     "output_urls_limit": ConfigRule(kind="integer", minimum=1),
     "speed_test_target": ConfigRule(kind="integer", minimum=0),
@@ -222,9 +222,9 @@ def _get_primary_ipv4() -> str | None:
 
 
 def get_resolution_value(resolution_str):
-    """
-    Get resolution value from string
-    """
+"""
+[PT-BR]     Get resolution value from string
+"""
     pattern = r"(\d+)[xX*](\d+)"
     match = re.search(pattern, resolution_str)
     if match:
@@ -359,47 +359,70 @@ class ConfigManager:
 
     @property
     def urls_limit(self):
-        """Deprecated compatibility alias for the per-channel output limit."""
-        return self.output_urls_limit
+"""
+[PT-BR]         return self.output_urls_limit
 
-    @property
-    def output_urls_limit(self):
-        configured = self.config.get("Settings", "output_urls_limit", fallback="").strip()
-        output_source = self._sources.get(("Settings", "output_urls_limit"))
-        legacy_source = self._sources.get(("Settings", "urls_limit"))
-        # A legacy value from the user file must continue to override the
-        # shipped default output value during migration.
-        if (
-            legacy_source
-            and legacy_source != self._default_config_path
-            and output_source == self._default_config_path
-        ):
-            return self.config.getint("Settings", "urls_limit", fallback=10)
-        if configured:
-            return max(1, int(configured))
-        return self.config.getint("Settings", "urls_limit", fallback=10)
 
-    @property
-    def speed_test_target(self):
-        """Number of valid results targeted by quick speed testing.
+
+[PT-BR]     @property
+
+[PT-BR]     def output_urls_limit(self):
+
+[PT-BR]         configured = self.config.get("Settings", "output_urls_limit", fallback="").strip()
+
+[PT-BR]         output_source = self._sources.get(("Settings", "output_urls_limit"))
+
+[PT-BR]         legacy_source = self._sources.get(("Settings", "urls_limit"))
+
+[PT-BR]         # A legacy value from the user file must continue to override the
+
+[PT-BR]         # shipped default output value during migration.
+
+[PT-BR]         if (
+
+[PT-BR]             legacy_source
+
+[PT-BR]             and legacy_source != self._default_config_path
+
+[PT-BR]             and output_source == self._default_config_path
+
+[PT-BR]         ):
+
+[PT-BR]             return self.config.getint("Settings", "urls_limit", fallback=10)
+
+[PT-BR]         if configured:
+
+[PT-BR]             return max(1, int(configured))
+
+[PT-BR]         return self.config.getint("Settings", "urls_limit", fallback=10)
+
+
+
+[PT-BR]     @property
+
+[PT-BR]     def speed_test_target(self):
+"""
 
         A value of zero follows the output limit.  ``open_full_speed_test``
         still takes precedence and tests the entire candidate pool.
         """
-        # ``quick_test_target`` is the descriptive name used by the layered
-        # candidate model; retain ``speed_test_target`` for compatibility.
+        # [PT-BR] ``quick_test_target`` is the descriptive name used by the layered
+        # [PT-BR] candidate model; retain ``speed_test_target`` for compatibility.
         quick_value = self.config.getint("Settings", "quick_test_target", fallback=0)
         value = quick_value or self.config.getint("Settings", "speed_test_target", fallback=0)
         return self.output_urls_limit if value <= 0 else value
 
     @property
     def quick_test_target(self):
-        """Compatibility/readability alias for :attr:`speed_test_target`."""
-        return self.speed_test_target
+"""
+[PT-BR]         return self.speed_test_target
 
-    @property
-    def speed_test_mode(self):
-        """Return the explicit speed-test workflow with legacy migration."""
+
+
+[PT-BR]     @property
+
+[PT-BR]     def speed_test_mode(self):
+"""
         mode = self.config.get("Settings", "speed_test_mode", fallback="").strip().lower()
         mode_source = self._sources.get(("Settings", "speed_test_mode"))
         legacy_source = self._sources.get(("Settings", "open_speed_test"))
@@ -505,254 +528,499 @@ class ConfigManager:
 
     @property
     def nginx_http_port(self):
-        """Backward-compatible alias for the user-facing HTTP service port."""
-        return self.service_port
+"""
+[PT-BR]         return self.service_port
 
-    @property
-    def nginx_rtmp_port(self):
-        return self.config.getint("Settings", "nginx_rtmp_port", fallback=1935)
 
-    @property
-    def open_supply(self):
-        return self.config.getboolean("Settings", "open_supply", fallback=False)
 
-    @property
-    def sort_by(self):
-        raw = self.config.get("Settings", "sort_by", fallback="speed")
-        allowed = ("speed", "delay", "resolution")
-        result = [s.strip().lower() for s in str(raw).split(",") if s.strip().lower() in allowed]
-        return result or ["speed"]
+[PT-BR]     @property
 
-    @property
-    def update_time_position(self):
-        return self.config.get("Settings", "update_time_position", fallback="top")
+[PT-BR]     def nginx_rtmp_port(self):
 
-    @property
-    def time_zone(self):
-        return self.config.get("Settings", "time_zone", fallback="Asia/Shanghai")
+[PT-BR]         return self.config.getint("Settings", "nginx_rtmp_port", fallback=1935)
 
-    @property
-    def open_local(self):
-        return self.config.getboolean("Settings", "open_local", fallback=True)
 
-    @property
-    def local_num(self):
-        return self.config.getint("Settings", "local_num", fallback=10)
 
-    @property
-    def speed_test_filter_host(self):
-        return self.config.getboolean("Settings", "speed_test_filter_host", fallback=False)
+[PT-BR]     @property
 
-    @property
-    def cdn_urls(self):
-        raw = self.config.get("Settings", "cdn_url", fallback="")
-        return [u.strip() for u in re.split(r"[,\n]", raw) if u.strip()]
+[PT-BR]     def open_supply(self):
 
-    @property
-    def cdn_url(self):
-        urls = self.cdn_urls
-        return urls[0] if urls else ""
+[PT-BR]         return self.config.getboolean("Settings", "open_supply", fallback=False)
 
-    @property
-    def open_rtmp(self):
-        return not self._environ.get("GITHUB_ACTIONS") and self.config.getboolean("Settings", "open_rtmp", fallback=True)
 
-    @property
-    def rtmp_available(self):
-        if not self.open_rtmp:
-            return False
-        if sys.platform != "darwin":
-            return True
-        from utils.rtmp_runtime import rtmp_runtime_status
-        return rtmp_runtime_status().get("available", False)
 
-    @property
-    def open_headers(self):
-        return self.config.getboolean("Settings", "open_headers", fallback=True)
+[PT-BR]     @property
 
-    @property
-    def user_agent(self):
-        return self.config.get("Settings", "user_agent", fallback="").strip()
+[PT-BR]     def sort_by(self):
 
-    @property
-    def open_epg(self):
-        return self.config.getboolean("Settings", "open_epg", fallback=True)
+[PT-BR]         raw = self.config.get("Settings", "sort_by", fallback="speed")
 
-    @property
-    def open_subscribe_epg(self):
-        return self.config.getboolean("Settings", "open_subscribe_epg", fallback=False)
+[PT-BR]         allowed = ("speed", "delay", "resolution")
 
-    @property
-    def speed_test_limit(self):
-        return self.config.getint("Settings", "speed_test_limit", fallback=0)
+[PT-BR]         result = [s.strip().lower() for s in str(raw).split(",") if s.strip().lower() in allowed]
 
-    @property
-    def performance_mode(self):
-        mode = self.config.get("Settings", "performance_mode", fallback="auto").lower()
-        return mode if mode in PERFORMANCE_MODES else "auto"
+[PT-BR]         return result or ["speed"]
 
-    @property
-    def performance_settings(self):
-        return get_performance_settings(self.performance_mode, self.speed_test_limit)
 
-    @property
-    def location(self):
-        return [
-            l.strip()
-            for l in self.config.get(
-                "Settings", "location", fallback=""
-            ).split(",")
-            if l.strip()
-        ]
 
-    @property
-    def isp(self):
-        return [
-            i.strip()
-            for i in self.config.get(
-                "Settings", "isp", fallback=""
-            ).split(",")
-            if i.strip()
-        ]
+[PT-BR]     @property
 
-    @property
-    def update_mode(self):
-        return self.config.get("Settings", "update_mode", fallback="interval")
+[PT-BR]     def update_time_position(self):
 
-    @property
-    def update_interval(self):
-        raw = self.config.get("Settings", "update_interval", fallback="12")
-        if raw is None or str(raw).strip() == "":
-            return None
-        try:
-            return float(raw)
-        except (ValueError, TypeError):
-            return 12.0
+[PT-BR]         return self.config.get("Settings", "update_time_position", fallback="top")
 
-    @property
-    def update_times(self):
-        return self.config.get("Settings", "update_times", fallback="")
 
-    @property
-    def update_startup(self):
-        return self.config.getboolean("Settings", "update_startup", fallback=True)
 
-    @property
-    def logo_url(self):
-        return self.config.get("Settings", "logo_url", fallback="")
+[PT-BR]     @property
 
-    @property
-    def logo_type(self):
-        return self.config.get("Settings", "logo_type", fallback="png")
+[PT-BR]     def time_zone(self):
 
-    @property
-    def open_subscribe_logo(self):
-        return self.config.getboolean("Settings", "open_subscribe_logo", fallback=True)
+[PT-BR]         return self.config.get("Settings", "time_zone", fallback="Asia/Shanghai")
 
-    @property
-    def rtmp_idle_timeout(self):
-        return self.config.getint("Settings", "rtmp_idle_timeout", fallback=300)
 
-    @property
-    def rtmp_max_streams(self):
-        return self.config.getint("Settings", "rtmp_max_streams", fallback=10)
 
-    @property
-    def rtmp_transcode_mode(self):
-        return (self.config.get("Settings", "rtmp_transcode_mode", fallback="copy") or "copy").lower()
+[PT-BR]     @property
 
-    @property
-    def public_scheme(self):
-        return self.config.get("Settings", "public_scheme", fallback="http") or "http"
+[PT-BR]     def open_local(self):
 
-    @property
-    def public_url(self):
-        return self.config.get("Settings", "public_url", fallback="").strip().rstrip("/")
+[PT-BR]         return self.config.getboolean("Settings", "open_local", fallback=True)
 
-    @property
-    def public_domain(self):
-        cfg = self.config.get("Settings", "public_domain", fallback="127.0.0.1")
-        if cfg and cfg != "127.0.0.1":
-            return cfg
-        if self._detected_public_domain is None:
-            self._detected_public_domain = _get_primary_ipv4()
-            if not self._detected_public_domain:
-                try:
-                    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-                    try:
-                        s.connect(("8.8.8.8", 80))
-                        ip = s.getsockname()[0]
-                    finally:
-                        s.close()
-                    if ip and not ip.startswith("127."):
-                        self._detected_public_domain = ip
-                except Exception:
-                    pass
-            self._detected_public_domain = self._detected_public_domain or cfg
-        return self._detected_public_domain
 
-    @property
-    def public_port(self):
-        env = self._environ.get("PUBLIC_PORT")
-        if env:
-            return int(env)
-        return self.service_port if self.rtmp_available else self.app_port
 
-    def environment_override_name(self, key: str) -> str | None:
-        source_key = key
-        if key == "service_port":
-            service_source = self._sources.get(("Settings", "service_port"))
-            legacy_source = self._sources.get(("Settings", "nginx_http_port"))
-            if (
-                service_source == self._default_config_path
-                and legacy_source
-                and legacy_source != self._default_config_path
-            ):
-                source_key = "nginx_http_port"
-        source = self._sources.get(("Settings", source_key), "")
-        prefix = "环境变量 "
-        return source[len(prefix):] if source.startswith(prefix) else None
+[PT-BR]     @property
 
-    @property
-    def language(self):
-        return self.config.get("Settings", "language", fallback="zh_CN")
+[PT-BR]     def local_num(self):
 
-    @property
-    def http_proxy(self):
-        return self.config.get("Settings", "http_proxy", fallback="").strip()
+[PT-BR]         return self.config.getint("Settings", "local_num", fallback=10)
 
-    @property
-    def open_realtime_write(self):
-        return self.config.getboolean("Settings", "open_realtime_write", fallback=True)
 
-    @property
-    def open_full_speed_test(self):
-        return self.config.getboolean("Settings", "open_full_speed_test", fallback=False)
 
-    @property
-    def resolution_speed_map(self):
-        mapping = {}
-        for item in self.config.get("Settings", "resolution_speed_map", fallback="").split(","):
-            if ":" in item:
-                resolution_part, speed_part = item.split(":", 1)
-                resolution = resolution_part.strip()
-                try:
-                    speed = float(speed_part.strip())
-                    mapping[resolution] = speed
-                except ValueError:
-                    pass
-        return mapping
+[PT-BR]     @property
 
-    @property
-    def open_unmatch_category(self):
-        return self.config.getboolean("Settings", "open_unmatch_category", fallback=False)
+[PT-BR]     def speed_test_filter_host(self):
 
-    @property
-    def open_auto_disable_source(self):
-        return self.config.getboolean("Settings", "open_auto_disable_source", fallback=False)
+[PT-BR]         return self.config.getboolean("Settings", "speed_test_filter_host", fallback=False)
 
-    def load(self):
-        """
+
+
+[PT-BR]     @property
+
+[PT-BR]     def cdn_urls(self):
+
+[PT-BR]         raw = self.config.get("Settings", "cdn_url", fallback="")
+
+[PT-BR]         return [u.strip() for u in re.split(r"[,\n]", raw) if u.strip()]
+
+
+
+[PT-BR]     @property
+
+[PT-BR]     def cdn_url(self):
+
+[PT-BR]         urls = self.cdn_urls
+
+[PT-BR]         return urls[0] if urls else ""
+
+
+
+[PT-BR]     @property
+
+[PT-BR]     def open_rtmp(self):
+
+[PT-BR]         return not self._environ.get("GITHUB_ACTIONS") and self.config.getboolean("Settings", "open_rtmp", fallback=True)
+
+
+
+[PT-BR]     @property
+
+[PT-BR]     def rtmp_available(self):
+
+[PT-BR]         if not self.open_rtmp:
+
+[PT-BR]             return False
+
+[PT-BR]         if sys.platform != "darwin":
+
+[PT-BR]             return True
+
+[PT-BR]         from utils.rtmp_runtime import rtmp_runtime_status
+
+[PT-BR]         return rtmp_runtime_status().get("available", False)
+
+
+
+[PT-BR]     @property
+
+[PT-BR]     def open_headers(self):
+
+[PT-BR]         return self.config.getboolean("Settings", "open_headers", fallback=True)
+
+
+
+[PT-BR]     @property
+
+[PT-BR]     def user_agent(self):
+
+[PT-BR]         return self.config.get("Settings", "user_agent", fallback="").strip()
+
+
+
+[PT-BR]     @property
+
+[PT-BR]     def open_epg(self):
+
+[PT-BR]         return self.config.getboolean("Settings", "open_epg", fallback=True)
+
+
+
+[PT-BR]     @property
+
+[PT-BR]     def open_subscribe_epg(self):
+
+[PT-BR]         return self.config.getboolean("Settings", "open_subscribe_epg", fallback=False)
+
+
+
+[PT-BR]     @property
+
+[PT-BR]     def speed_test_limit(self):
+
+[PT-BR]         return self.config.getint("Settings", "speed_test_limit", fallback=0)
+
+
+
+[PT-BR]     @property
+
+[PT-BR]     def performance_mode(self):
+
+[PT-BR]         mode = self.config.get("Settings", "performance_mode", fallback="auto").lower()
+
+[PT-BR]         return mode if mode in PERFORMANCE_MODES else "auto"
+
+
+
+[PT-BR]     @property
+
+[PT-BR]     def performance_settings(self):
+
+[PT-BR]         return get_performance_settings(self.performance_mode, self.speed_test_limit)
+
+
+
+[PT-BR]     @property
+
+[PT-BR]     def location(self):
+
+[PT-BR]         return [
+
+[PT-BR]             l.strip()
+
+[PT-BR]             for l in self.config.get(
+
+[PT-BR]                 "Settings", "location", fallback=""
+
+[PT-BR]             ).split(",")
+
+[PT-BR]             if l.strip()
+
+[PT-BR]         ]
+
+
+
+[PT-BR]     @property
+
+[PT-BR]     def isp(self):
+
+[PT-BR]         return [
+
+[PT-BR]             i.strip()
+
+[PT-BR]             for i in self.config.get(
+
+[PT-BR]                 "Settings", "isp", fallback=""
+
+[PT-BR]             ).split(",")
+
+[PT-BR]             if i.strip()
+
+[PT-BR]         ]
+
+
+
+[PT-BR]     @property
+
+[PT-BR]     def update_mode(self):
+
+[PT-BR]         return self.config.get("Settings", "update_mode", fallback="interval")
+
+
+
+[PT-BR]     @property
+
+[PT-BR]     def update_interval(self):
+
+[PT-BR]         raw = self.config.get("Settings", "update_interval", fallback="12")
+
+[PT-BR]         if raw is None or str(raw).strip() == "":
+
+[PT-BR]             return None
+
+[PT-BR]         try:
+
+[PT-BR]             return float(raw)
+
+[PT-BR]         except (ValueError, TypeError):
+
+[PT-BR]             return 12.0
+
+
+
+[PT-BR]     @property
+
+[PT-BR]     def update_times(self):
+
+[PT-BR]         return self.config.get("Settings", "update_times", fallback="")
+
+
+
+[PT-BR]     @property
+
+[PT-BR]     def update_startup(self):
+
+[PT-BR]         return self.config.getboolean("Settings", "update_startup", fallback=True)
+
+
+
+[PT-BR]     @property
+
+[PT-BR]     def logo_url(self):
+
+[PT-BR]         return self.config.get("Settings", "logo_url", fallback="")
+
+
+
+[PT-BR]     @property
+
+[PT-BR]     def logo_type(self):
+
+[PT-BR]         return self.config.get("Settings", "logo_type", fallback="png")
+
+
+
+[PT-BR]     @property
+
+[PT-BR]     def open_subscribe_logo(self):
+
+[PT-BR]         return self.config.getboolean("Settings", "open_subscribe_logo", fallback=True)
+
+
+
+[PT-BR]     @property
+
+[PT-BR]     def rtmp_idle_timeout(self):
+
+[PT-BR]         return self.config.getint("Settings", "rtmp_idle_timeout", fallback=300)
+
+
+
+[PT-BR]     @property
+
+[PT-BR]     def rtmp_max_streams(self):
+
+[PT-BR]         return self.config.getint("Settings", "rtmp_max_streams", fallback=10)
+
+
+
+[PT-BR]     @property
+
+[PT-BR]     def rtmp_transcode_mode(self):
+
+[PT-BR]         return (self.config.get("Settings", "rtmp_transcode_mode", fallback="copy") or "copy").lower()
+
+
+
+[PT-BR]     @property
+
+[PT-BR]     def public_scheme(self):
+
+[PT-BR]         return self.config.get("Settings", "public_scheme", fallback="http") or "http"
+
+
+
+[PT-BR]     @property
+
+[PT-BR]     def public_url(self):
+
+[PT-BR]         return self.config.get("Settings", "public_url", fallback="").strip().rstrip("/")
+
+
+
+[PT-BR]     @property
+
+[PT-BR]     def public_domain(self):
+
+[PT-BR]         cfg = self.config.get("Settings", "public_domain", fallback="127.0.0.1")
+
+[PT-BR]         if cfg and cfg != "127.0.0.1":
+
+[PT-BR]             return cfg
+
+[PT-BR]         if self._detected_public_domain is None:
+
+[PT-BR]             self._detected_public_domain = _get_primary_ipv4()
+
+[PT-BR]             if not self._detected_public_domain:
+
+[PT-BR]                 try:
+
+[PT-BR]                     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+[PT-BR]                     try:
+
+[PT-BR]                         s.connect(("8.8.8.8", 80))
+
+[PT-BR]                         ip = s.getsockname()[0]
+
+[PT-BR]                     finally:
+
+[PT-BR]                         s.close()
+
+[PT-BR]                     if ip and not ip.startswith("127."):
+
+[PT-BR]                         self._detected_public_domain = ip
+
+[PT-BR]                 except Exception:
+
+[PT-BR]                     pass
+
+[PT-BR]             self._detected_public_domain = self._detected_public_domain or cfg
+
+[PT-BR]         return self._detected_public_domain
+
+
+
+[PT-BR]     @property
+
+[PT-BR]     def public_port(self):
+
+[PT-BR]         env = self._environ.get("PUBLIC_PORT")
+
+[PT-BR]         if env:
+
+[PT-BR]             return int(env)
+
+[PT-BR]         return self.service_port if self.rtmp_available else self.app_port
+
+
+
+[PT-BR]     def environment_override_name(self, key: str) -> str | None:
+
+[PT-BR]         source_key = key
+
+[PT-BR]         if key == "service_port":
+
+[PT-BR]             service_source = self._sources.get(("Settings", "service_port"))
+
+[PT-BR]             legacy_source = self._sources.get(("Settings", "nginx_http_port"))
+
+[PT-BR]             if (
+
+[PT-BR]                 service_source == self._default_config_path
+
+[PT-BR]                 and legacy_source
+
+[PT-BR]                 and legacy_source != self._default_config_path
+
+[PT-BR]             ):
+
+[PT-BR]                 source_key = "nginx_http_port"
+
+[PT-BR]         source = self._sources.get(("Settings", source_key), "")
+
+[PT-BR]         prefix = "环境变量 "
+
+[PT-BR]         return source[len(prefix):] if source.startswith(prefix) else None
+
+
+
+[PT-BR]     @property
+
+[PT-BR]     def language(self):
+
+[PT-BR]         return self.config.get("Settings", "language", fallback="zh_CN")
+
+
+
+[PT-BR]     @property
+
+[PT-BR]     def http_proxy(self):
+
+[PT-BR]         return self.config.get("Settings", "http_proxy", fallback="").strip()
+
+
+
+[PT-BR]     @property
+
+[PT-BR]     def open_realtime_write(self):
+
+[PT-BR]         return self.config.getboolean("Settings", "open_realtime_write", fallback=True)
+
+
+
+[PT-BR]     @property
+
+[PT-BR]     def open_full_speed_test(self):
+
+[PT-BR]         return self.config.getboolean("Settings", "open_full_speed_test", fallback=False)
+
+
+
+[PT-BR]     @property
+
+[PT-BR]     def resolution_speed_map(self):
+
+[PT-BR]         mapping = {}
+
+[PT-BR]         for item in self.config.get("Settings", "resolution_speed_map", fallback="").split(","):
+
+[PT-BR]             if ":" in item:
+
+[PT-BR]                 resolution_part, speed_part = item.split(":", 1)
+
+[PT-BR]                 resolution = resolution_part.strip()
+
+[PT-BR]                 try:
+
+[PT-BR]                     speed = float(speed_part.strip())
+
+[PT-BR]                     mapping[resolution] = speed
+
+[PT-BR]                 except ValueError:
+
+[PT-BR]                     pass
+
+[PT-BR]         return mapping
+
+
+
+[PT-BR]     @property
+
+[PT-BR]     def open_unmatch_category(self):
+
+[PT-BR]         return self.config.getboolean("Settings", "open_unmatch_category", fallback=False)
+
+
+
+[PT-BR]     @property
+
+[PT-BR]     def open_auto_disable_source(self):
+
+[PT-BR]         return self.config.getboolean("Settings", "open_auto_disable_source", fallback=False)
+
+
+
+[PT-BR]     def load(self):
+"""
         Load the config
         """
         self._detected_public_domain = None
@@ -768,7 +1036,7 @@ class ConfigManager:
                 else resource_path("config/config.ini")
             )
 
-        # user config overwrites default config
+        # [PT-BR] user config overwrites default config
         config_files = [self._default_config_path, self._user_config_path]
         for config_file in config_files:
             if os.path.exists(config_file):
@@ -801,8 +1069,8 @@ class ConfigManager:
                 for env_name in candidates:
                     env_val = self._environ.get(env_name)
                     if env_val is not None:
-                        # Empty Compose placeholders must not clear values saved
-                        # in the mounted configuration.
+                        # [PT-BR] Empty Compose placeholders must not clear values saved
+                        # [PT-BR] in the mounted configuration.
                         if (
                             key in {"public_url", "http_proxy"}
                             and not str(env_val).strip()
@@ -1116,16 +1384,16 @@ class ConfigManager:
             raise ConfigValidationError(issues)
 
     def set(self, section, key, value):
-        """
-        Set the config
-        """
+"""
+[PT-BR]         Set the config
+"""
         self.config.set(section, key, value)
         self._sources[(section, key)] = "运行时配置"
 
     def save(self):
-        """
-        Save config with write
-        """
+"""
+[PT-BR]         Save config with write
+"""
         self.validate()
         user_config_path = self._user_config_path
         if not os.path.exists(user_config_path):
@@ -1136,9 +1404,9 @@ class ConfigManager:
             self.config.write(configfile)
 
     def copy(self, path="config"):
-        """
-        Copy config files to current directory
-        """
+"""
+[PT-BR]         Copy config files to current directory
+"""
         dest_folder = os.path.join(os.getcwd(), path)
         try:
             src_dir = (

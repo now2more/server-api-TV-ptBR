@@ -10,9 +10,9 @@ from utils.tools import resource_path
 
 class LocalUI:
     def init_ui(self, root):
-        """
-        Init local UI
-        """
+"""
+[PT-BR]         Init local UI
+"""
         frame_local_open_local = tk.Frame(root)
         frame_local_open_local.pack(fill=tk.X)
 

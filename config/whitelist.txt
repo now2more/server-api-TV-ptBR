@@ -1,4 +1,4 @@
-# 这是接口的白名单，白名单内的接口将不会参与测速，始终保留至结果最前；
+[PT-BR] # 这是接口的白名单，白名单内的接口将不会参与测速，始终保留至结果最前；
 # 填写频道名称会直接保留该记录至该频道的最终结果，如：CCTV-1,接口地址；
 # 如果不填写频道名称，则该地址会被加入到所有频道的结果中，多条记录换行输入。
 # This is the whitelist for interfaces. Interfaces in the whitelist will not be speed tested and will always be kept at the top of the results;

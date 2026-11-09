@@ -80,9 +80,9 @@ class UpdateSource:
         self._resume_event: Optional[asyncio.Event] = None
         self._pause_requested = threading.Event()
 
-    # ----------------------------
-    # pause / resume control
-    # ----------------------------
+    # [PT-BR] ----------------------------
+    # [PT-BR] pause / resume control
+    # [PT-BR] ----------------------------
     def _initialize_pause_control(self):
         self._loop = asyncio.get_running_loop()
         self._resume_event = asyncio.Event()
@@ -126,9 +126,9 @@ class UpdateSource:
     def is_paused(self) -> bool:
         return self._pause_requested.is_set()
 
-    # ----------------------------
-    # IO: cache
-    # ----------------------------
+    # [PT-BR] ----------------------------
+    # [PT-BR] IO: cache
+    # [PT-BR] ----------------------------
     def _load_cache(self) -> dict:
         if not (config.open_history and os.path.exists(constants.cache_path)):
             return {}
@@ -146,9 +146,9 @@ class UpdateSource:
         with gzip.open(constants.cache_path, "wb") as f:
             pickle.dump(serializable, f)
 
-    # ----------------------------
-    # stage 1: prepare
-    # ----------------------------
+    # [PT-BR] ----------------------------
+    # [PT-BR] stage 1: prepare
+    # [PT-BR] ----------------------------
     def _prepare_channel_data(self):
         channel_alias.reload()
         self.run_metrics = {}
@@ -237,9 +237,9 @@ class UpdateSource:
             reason = "no_usable_data"
         self._set_empty_outcome(reason, "aggregate")
 
-    # ----------------------------
-    # stage 2: fetch subscribe/epg (concurrent)
-    # ----------------------------
+    # [PT-BR] ----------------------------
+    # [PT-BR] stage 2: fetch subscribe/epg (concurrent)
+    # [PT-BR] ----------------------------
     async def _fetch_subscribe(self, channel_names: list[str], epg_urls_out: set = None):
         whitelist_entries, default_entries = get_subscribe_entries(constants.subscribe_path)
         disabled_count = count_disabled_urls(constants.subscribe_path)
@@ -363,56 +363,103 @@ class UpdateSource:
 
     @staticmethod
     def _count_exported_items(data: CategoryChannelData) -> int:
-        """Count records that the configured playlist renderer will export."""
-        ipv_type_prefer = list(config.ipv_type_prefer)
-        if any(value == "auto" for value in ipv_type_prefer):
-            ipv_type_prefer = ["ipv4", "ipv6"]
-        total = 0
-        unmatch_category = t("content.unmatch_channel")
-        for category, channels in (data or {}).items():
-            for items in channels.values():
-                total += len(
-                    get_total_urls(
-                        items,
-                        ipv_type_prefer,
-                        config.origin_type_prefer,
-                        apply_limit=category != unmatch_category,
-                    )
-                )
-        return total
+"""
+[PT-BR]         ipv_type_prefer = list(config.ipv_type_prefer)
 
-    # ----------------------------
-    # stage 3: aggregator lifecycle
-    # ----------------------------
-    async def _start_aggregator(self, cache: dict):
-        self.aggregator = ResultAggregator(
-            base_data=self.channel_data,
-            first_channel_name=self.channel_names[0] if self.channel_names else None,
-            ipv6_support=self.ipv6_support,
-            write_interval=10.0,
-            flush_debounce=2.0,
-            min_items_before_flush=max(25, config.output_urls_limit),
-            result=cache,
-            channel_catalog=self.channel_items,
-            reporter=self.reporter,
-        )
-        await self.aggregator.start()
+[PT-BR]         if any(value == "auto" for value in ipv_type_prefer):
 
-    async def _stop_aggregator(self, flush: bool = True):
-        if self.aggregator:
-            aggregator = self.aggregator
-            try:
-                await aggregator.stop(flush=flush)
-                return aggregator.result
-            finally:
-                self.aggregator = None
-        return {}
+[PT-BR]             ipv_type_prefer = ["ipv4", "ipv6"]
 
-    # ----------------------------
-    # stage 4: speed test
-    # ----------------------------
-    async def _run_speed_test(self) -> CategoryChannelData:
-        """
+[PT-BR]         total = 0
+
+[PT-BR]         unmatch_category = t("content.unmatch_channel")
+
+[PT-BR]         for category, channels in (data or {}).items():
+
+[PT-BR]             for items in channels.values():
+
+[PT-BR]                 total += len(
+
+[PT-BR]                     get_total_urls(
+
+[PT-BR]                         items,
+
+[PT-BR]                         ipv_type_prefer,
+
+[PT-BR]                         config.origin_type_prefer,
+
+[PT-BR]                         apply_limit=category != unmatch_category,
+
+[PT-BR]                     )
+
+[PT-BR]                 )
+
+[PT-BR]         return total
+
+
+
+[PT-BR]     # ----------------------------
+
+[PT-BR]     # stage 3: aggregator lifecycle
+
+[PT-BR]     # ----------------------------
+
+[PT-BR]     async def _start_aggregator(self, cache: dict):
+
+[PT-BR]         self.aggregator = ResultAggregator(
+
+[PT-BR]             base_data=self.channel_data,
+
+[PT-BR]             first_channel_name=self.channel_names[0] if self.channel_names else None,
+
+[PT-BR]             ipv6_support=self.ipv6_support,
+
+[PT-BR]             write_interval=10.0,
+
+[PT-BR]             flush_debounce=2.0,
+
+[PT-BR]             min_items_before_flush=max(25, config.output_urls_limit),
+
+[PT-BR]             result=cache,
+
+[PT-BR]             channel_catalog=self.channel_items,
+
+[PT-BR]             reporter=self.reporter,
+
+[PT-BR]         )
+
+[PT-BR]         await self.aggregator.start()
+
+
+
+[PT-BR]     async def _stop_aggregator(self, flush: bool = True):
+
+[PT-BR]         if self.aggregator:
+
+[PT-BR]             aggregator = self.aggregator
+
+[PT-BR]             try:
+
+[PT-BR]                 await aggregator.stop(flush=flush)
+
+[PT-BR]                 return aggregator.result
+
+[PT-BR]             finally:
+
+[PT-BR]                 self.aggregator = None
+
+[PT-BR]         return {}
+
+
+
+[PT-BR]     # ----------------------------
+
+[PT-BR]     # stage 4: speed test
+
+[PT-BR]     # ----------------------------
+
+[PT-BR]     async def _run_speed_test(self) -> CategoryChannelData:
+"""
         Run speed test on the channel data and return the test results.
         """
         test_data = {
@@ -557,9 +604,9 @@ class UpdateSource:
                 invalid=invalid_items,
             )
 
-    # ----------------------------
-    # stage 5: ui final notify
-    # ----------------------------
+    # [PT-BR] ----------------------------
+    # [PT-BR] stage 5: ui final notify
+    # [PT-BR] ----------------------------
     def _notify_ui_finished(self, main_start_time: float):
         if not self.run_ui:
             return
@@ -592,9 +639,9 @@ class UpdateSource:
                 now=self.now,
             )
 
-    # ----------------------------
-    # main flow
-    # ----------------------------
+    # [PT-BR] ----------------------------
+    # [PT-BR] main flow
+    # [PT-BR] ----------------------------
     async def main(self):
         run_id = start_run(constants.channel_results_path)
         self.reporter.bind_run(run_id)
@@ -665,9 +712,9 @@ class UpdateSource:
                     clear_cache()
                     await self._run_speed_test()
                 else:
-                    # Manual mode only refreshes the candidate pool. Do not
-                    # mark candidates as measured merely because they were
-                    # collected; GUI retest actions create measurements.
+                    # [PT-BR] Manual mode only refreshes the candidate pool. Do not
+                    # [PT-BR] mark candidates as measured merely because they were
+                    # [PT-BR] collected; GUI retest actions create measurements.
                     self.aggregator.test_results = {}
                     self.aggregator.result = {}
                     self.aggregator.is_last = True
@@ -836,9 +883,9 @@ class UpdateSource:
             finish_run(constants.channel_results_path, run_id, run_status, run_error)
             self.reporter.bind_run(None)
 
-    # ----------------------------
-    # lifecycle control
-    # ----------------------------
+    # [PT-BR] ----------------------------
+    # [PT-BR] lifecycle control
+    # [PT-BR] ----------------------------
     async def run_once(self, callback=None, event_callback=None):
         def default_callback(*args, **kwargs):
             pass

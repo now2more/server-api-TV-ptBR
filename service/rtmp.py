@@ -181,9 +181,9 @@ def _start_ffmpeg_process(cmd, channel_id):
 
 
 def _save_probe_metadata_to_db(channel_id: str, url: str, headers: dict | None, meta: dict | None):
-    """
-    Save probe metadata into result_data table (create full schema if needed).
-    """
+"""
+[PT-BR]     Save probe metadata into result_data table (create full schema if needed).
+"""
     if not meta:
         return
     conn = None
@@ -237,9 +237,9 @@ def ensure_hls_idle_monitor_started():
 
 @lru_cache(maxsize=1)
 def _get_video_encoder_args():
-    """
-    Get the best available video encoder arguments based on the system's ffmpeg encoders.
-    """
+"""
+[PT-BR]     Get the best available video encoder arguments based on the system's ffmpeg encoders.
+"""
     preferred = ['h264_nvenc', 'h264_qsv', 'h264_amf', 'libx264']
 
     try:
@@ -265,9 +265,9 @@ def _get_video_encoder_args():
 
 
 def invalidate_video_encoder_args_cache():
-    """
-    Invalidate the cached video encoder arguments, forcing a re-check of available encoders on next use.
-    """
+"""
+[PT-BR]     Invalidate the cached video encoder arguments, forcing a re-check of available encoders on next use.
+"""
     try:
         _get_video_encoder_args.cache_clear()
     except Exception:
@@ -276,10 +276,11 @@ def invalidate_video_encoder_args_cache():
 
 @lru_cache(maxsize=1)
 def _get_video_encoder_candidates():
-    """
-    Probe ffmpeg for available encoders and return a list of encoder argument lists in preferred order.
-    This is used to try fallbacks when a chosen encoder fails at runtime.
-    """
+"""
+[PT-BR]     Probe ffmpeg for available encoders and return a list of encoder argument lists in preferred order.
+
+[PT-BR]     This is used to try fallbacks when a chosen encoder fails at runtime.
+"""
     preferred = ['h264_nvenc', 'h264_qsv', 'h264_amf', 'libx264']
     candidates = []
     try:
@@ -357,11 +358,13 @@ def start_hls_to_rtmp_async(host, channel_id, client_user_agent: str | None = No
 
 
 def _start_reserved_hls_to_rtmp(host, channel_id, client_user_agent: str | None = None):
-    """
-    Start a HLS -> RTMP forwarding process for a given channel.
-    Optimized: clearer early returns, reduced duplicated checks, use wait(timeout)
-    to detect quick ffmpeg failures instead of manual poll loops.
-    """
+"""
+[PT-BR]     Start a HLS -> RTMP forwarding process for a given channel.
+
+[PT-BR]     Optimized: clearer early returns, reduced duplicated checks, use wait(timeout)
+
+[PT-BR]     to detect quick ffmpeg failures instead of manual poll loops.
+"""
     data = get_channel_data(channel_id)
     url = data.get("url", "")
     if not url:

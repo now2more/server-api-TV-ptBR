@@ -13,9 +13,9 @@ stability_threshold = 0.12
 
 
 def check_ffmpeg_installed_status():
-    """
-    Check ffmpeg is installed
-    """
+"""
+[PT-BR]     Check ffmpeg is installed
+"""
     status = False
     try:
         executable = resolve_ffmpeg_executable()

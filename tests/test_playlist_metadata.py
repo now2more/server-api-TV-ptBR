@@ -177,9 +177,9 @@ class PlaylistMetadataTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_subscribe_catchup_variants_are_retained(self):
         content = """#EXTM3U
-#EXTINF:-1 catchup="append" catchup-source="archive-a",Demo
+#[PT-BR] EXTINF:-1 catchup="append" catchup-source="archive-a",Demo
 https://example.com/live.m3u8
-#EXTINF:-1 catchup="append" catchup-source="archive-b",Demo
+#[PT-BR] EXTINF:-1 catchup="append" catchup-source="archive-b",Demo
 https://example.com/live.m3u8
 """
         reporter = Reporter(enable_console=False, enable_runtime_file=False)

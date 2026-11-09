@@ -1,4 +1,4 @@
-> [!WARNING]
+[PT-BR] > [!WARNING]
 > **请先确认你确实要提交代码贡献。**
 >
 > 如果你的目的是更新自己 Fork 的代码，请不要创建 Pull Request。

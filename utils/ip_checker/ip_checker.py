@@ -68,9 +68,9 @@ class IPChecker:
         self.host_ipv_type = {}
 
     def get_host(self, url: str) -> str:
-        """
-        Get the host from a URL
-        """
+"""
+[PT-BR]         Get the host from a URL
+"""
         if url in self.url_host:
             return self.url_host[url]
 
@@ -79,9 +79,9 @@ class IPChecker:
         return host
 
     def get_ip(self, url: str) -> str | None:
-        """
-        Get the IP from a URL
-        """
+"""
+[PT-BR]         Get the IP from a URL
+"""
         host = self.get_host(url)
         if host in self.host_ip:
             return self.host_ip[host]
@@ -90,9 +90,9 @@ class IPChecker:
         return self.host_ip.get(host)
 
     def get_ipv_type(self, url: str) -> str:
-        """
-        Get the IPv type of URL
-        """
+"""
+[PT-BR]         Get the IPv type of URL
+"""
         host = self.get_host(url)
         if host in self.host_ipv_type:
             return self.host_ipv_type[host]
@@ -112,11 +112,13 @@ class IPChecker:
         return ipv_type
 
     def find_map(self, ip: str) -> tuple[str | None, str | None]:
-        """
-        Find the IP address and return the location and ISP
-        :param ip: The IP address to find
-        :return: A tuple of (location, ISP)
-        """
+"""
+[PT-BR]         Find the IP address and return the location and ISP
+
+[PT-BR]         :param ip: The IP address to find
+
+[PT-BR]         :return: A tuple of (location, ISP)
+"""
         try:
             result = self.db.find_map(ip, "CN")
             if not result:

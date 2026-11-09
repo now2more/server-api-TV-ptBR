@@ -38,8 +38,8 @@ def mark_url_good(url: str) -> None:
     if not meta:
         return
     meta["last_good"] = _now_ts()
-    # A successful probe breaks the consecutive-failure streak. Keeping the
-    # old count would make a later, unrelated failure freeze the URL too soon.
+    # [PT-BR] A successful probe breaks the consecutive-failure streak. Keeping the
+    # [PT-BR] old count would make a later, unrelated failure freeze the URL too soon.
     _frozen.pop(url, None)
 
 

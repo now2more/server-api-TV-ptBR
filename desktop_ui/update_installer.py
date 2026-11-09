@@ -10,11 +10,13 @@ from PySide6.QtCore import QStandardPaths
 
 
 class UpdateInstallError(RuntimeError):
-    """Raised when a downloaded update cannot safely be installed."""
+"""
 
 
-def application_root(executable: str | None = None, platform_name: str | None = None) -> Path:
-    """Return the replaceable application directory for a frozen build."""
+
+
+[PT-BR] def application_root(executable: str | None = None, platform_name: str | None = None) -> Path:
+"""
     executable_path = Path(executable or sys.executable).resolve()
     platform_name = platform_name or sys.platform
     if platform_name == "darwin":

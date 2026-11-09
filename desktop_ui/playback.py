@@ -21,66 +21,123 @@ _MODES = {MODE_BROWSER, MODE_EXTERNAL, MODE_ASK}
 
 
 def discover_players() -> list[tuple[str, str]]:
-    """Return installed, known media players without probing arbitrary files."""
-    if sys.platform == "darwin":
-        app_roots = ("/Applications", os.path.expanduser("~/Applications"))
-        candidates = [
-            (name, os.path.join(root, bundle, "Contents", "MacOS", binary))
-            for root in app_roots
-            for name, bundle, binary in (
-                ("VLC", "VLC.app", "VLC"),
-                ("IINA", "IINA.app", "IINA"),
-                ("mpv", "mpv.app", "mpv"),
-            )
-        ]
-    elif sys.platform == "win32":
-        roots = tuple(filter(None, (
-            os.environ.get("ProgramFiles"),
-            os.environ.get("ProgramFiles(x86)"),
-            os.environ.get("LOCALAPPDATA"),
-        )))
-        candidates = [
-            (name, os.path.join(root, *parts))
-            for root in roots
-            for name, parts in (
-                ("VLC", ("VideoLAN", "VLC", "vlc.exe")),
-                ("mpv", ("mpv", "mpv.exe")),
-                ("PotPlayer", ("DAUM", "PotPlayer", "PotPlayerMini64.exe")),
-            )
-        ]
-    else:
-        candidates = [
-            (name, path)
-            for name in ("VLC", "mpv", "SMPlayer", "Celluloid", "Totem")
-            if (path := shutil.which(name.lower()))
-        ]
+"""
+[PT-BR]     if sys.platform == "darwin":
 
-    players = []
-    seen = set()
-    for name, path in candidates:
-        normalized = os.path.normcase(os.path.realpath(path))
-        if normalized in seen or not os.path.isfile(path):
-            continue
-        seen.add(normalized)
-        players.append((name, path))
-    return players
+[PT-BR]         app_roots = ("/Applications", os.path.expanduser("~/Applications"))
+
+[PT-BR]         candidates = [
+
+[PT-BR]             (name, os.path.join(root, bundle, "Contents", "MacOS", binary))
+
+[PT-BR]             for root in app_roots
+
+[PT-BR]             for name, bundle, binary in (
+
+[PT-BR]                 ("VLC", "VLC.app", "VLC"),
+
+[PT-BR]                 ("IINA", "IINA.app", "IINA"),
+
+[PT-BR]                 ("mpv", "mpv.app", "mpv"),
+
+[PT-BR]             )
+
+[PT-BR]         ]
+
+[PT-BR]     elif sys.platform == "win32":
+
+[PT-BR]         roots = tuple(filter(None, (
+
+[PT-BR]             os.environ.get("ProgramFiles"),
+
+[PT-BR]             os.environ.get("ProgramFiles(x86)"),
+
+[PT-BR]             os.environ.get("LOCALAPPDATA"),
+
+[PT-BR]         )))
+
+[PT-BR]         candidates = [
+
+[PT-BR]             (name, os.path.join(root, *parts))
+
+[PT-BR]             for root in roots
+
+[PT-BR]             for name, parts in (
+
+[PT-BR]                 ("VLC", ("VideoLAN", "VLC", "vlc.exe")),
+
+[PT-BR]                 ("mpv", ("mpv", "mpv.exe")),
+
+[PT-BR]                 ("PotPlayer", ("DAUM", "PotPlayer", "PotPlayerMini64.exe")),
+
+[PT-BR]             )
+
+[PT-BR]         ]
+
+[PT-BR]     else:
+
+[PT-BR]         candidates = [
+
+[PT-BR]             (name, path)
+
+[PT-BR]             for name in ("VLC", "mpv", "SMPlayer", "Celluloid", "Totem")
+
+[PT-BR]             if (path := shutil.which(name.lower()))
+
+[PT-BR]         ]
 
 
-def playback_mode() -> str:
-    mode = str(QSettings().value("playback/mode", MODE_BROWSER))
-    return mode if mode in _MODES else MODE_BROWSER
+
+[PT-BR]     players = []
+
+[PT-BR]     seen = set()
+
+[PT-BR]     for name, path in candidates:
+
+[PT-BR]         normalized = os.path.normcase(os.path.realpath(path))
+
+[PT-BR]         if normalized in seen or not os.path.isfile(path):
+
+[PT-BR]             continue
+
+[PT-BR]         seen.add(normalized)
+
+[PT-BR]         players.append((name, path))
+
+[PT-BR]     return players
 
 
-def external_player() -> tuple[str, str]:
-    settings = QSettings()
-    return (
-        str(settings.value("playback/executable", "")).strip(),
-        str(settings.value("playback/arguments", "{url}")).strip(),
-    )
 
 
-def build_player_command(executable: str, arguments: str, url: str) -> tuple[str, list[str]]:
-    """Build a detached-player command without passing user values to a shell."""
+
+[PT-BR] def playback_mode() -> str:
+
+[PT-BR]     mode = str(QSettings().value("playback/mode", MODE_BROWSER))
+
+[PT-BR]     return mode if mode in _MODES else MODE_BROWSER
+
+
+
+
+
+[PT-BR] def external_player() -> tuple[str, str]:
+
+[PT-BR]     settings = QSettings()
+
+[PT-BR]     return (
+
+[PT-BR]         str(settings.value("playback/executable", "")).strip(),
+
+[PT-BR]         str(settings.value("playback/arguments", "{url}")).strip(),
+
+[PT-BR]     )
+
+
+
+
+
+[PT-BR] def build_player_command(executable: str, arguments: str, url: str) -> tuple[str, list[str]]:
+"""
     args = shlex.split(arguments, posix=os.name != "nt") if arguments.strip() else []
     has_url = any("{url}" in arg for arg in args)
     args = [arg.replace("{url}", url) for arg in args]
@@ -106,41 +163,73 @@ def _open_external(url: str, parent=None) -> bool:
 
 
 def play_url(url: str, parent=None) -> bool:
-    """Open a media URL according to the saved GUI playback preference."""
-    if not url:
-        return False
-    mode = playback_mode()
-    if mode == MODE_ASK:
-        choice = QDialog(parent)
-        apply_dialog_theme(choice)
-        choice.setWindowTitle(t("desktop.choose_playback_method"))
-        choice.setMinimumWidth(420)
-        layout = QVBoxLayout(choice)
-        layout.addWidget(QLabel(t("desktop.choose_playback_method_hint"), choice))
-        buttons = QHBoxLayout()
-        cancel = PushButton(t("desktop.cancel"), choice)
-        browser = PushButton(t("desktop.play_in_browser"), choice)
-        player = PushButton(t("desktop.play_in_external_player"), choice)
-        buttons.addStretch(1)
-        buttons.addWidget(cancel)
-        buttons.addWidget(browser)
-        buttons.addWidget(player)
-        layout.addLayout(buttons)
-        selected = {"mode": None}
-        cancel.clicked.connect(choice.reject)
-        browser.clicked.connect(lambda: (selected.update(mode="browser"), choice.accept()))
-        player.clicked.connect(lambda: (selected.update(mode="external"), choice.accept()))
-        if choice.exec() != QDialog.DialogCode.Accepted:
-            return False
-        if selected["mode"] == "external":
-            return _open_external(url, parent)
-    if mode == MODE_EXTERNAL:
-        return _open_external(url, parent)
-    return QDesktopServices.openUrl(QUrl(url))
+"""
+[PT-BR]     if not url:
+
+[PT-BR]         return False
+
+[PT-BR]     mode = playback_mode()
+
+[PT-BR]     if mode == MODE_ASK:
+
+[PT-BR]         choice = QDialog(parent)
+
+[PT-BR]         apply_dialog_theme(choice)
+
+[PT-BR]         choice.setWindowTitle(t("desktop.choose_playback_method"))
+
+[PT-BR]         choice.setMinimumWidth(420)
+
+[PT-BR]         layout = QVBoxLayout(choice)
+
+[PT-BR]         layout.addWidget(QLabel(t("desktop.choose_playback_method_hint"), choice))
+
+[PT-BR]         buttons = QHBoxLayout()
+
+[PT-BR]         cancel = PushButton(t("desktop.cancel"), choice)
+
+[PT-BR]         browser = PushButton(t("desktop.play_in_browser"), choice)
+
+[PT-BR]         player = PushButton(t("desktop.play_in_external_player"), choice)
+
+[PT-BR]         buttons.addStretch(1)
+
+[PT-BR]         buttons.addWidget(cancel)
+
+[PT-BR]         buttons.addWidget(browser)
+
+[PT-BR]         buttons.addWidget(player)
+
+[PT-BR]         layout.addLayout(buttons)
+
+[PT-BR]         selected = {"mode": None}
+
+[PT-BR]         cancel.clicked.connect(choice.reject)
+
+[PT-BR]         browser.clicked.connect(lambda: (selected.update(mode="browser"), choice.accept()))
+
+[PT-BR]         player.clicked.connect(lambda: (selected.update(mode="external"), choice.accept()))
+
+[PT-BR]         if choice.exec() != QDialog.DialogCode.Accepted:
+
+[PT-BR]             return False
+
+[PT-BR]         if selected["mode"] == "external":
+
+[PT-BR]             return _open_external(url, parent)
+
+[PT-BR]     if mode == MODE_EXTERNAL:
+
+[PT-BR]         return _open_external(url, parent)
+
+[PT-BR]     return QDesktopServices.openUrl(QUrl(url))
 
 
-class PlaybackPreferencesDialog(QDialog):
-    """Small, immediate-effect UI for preferences not belonging to service config."""
+
+
+
+[PT-BR] class PlaybackPreferencesDialog(QDialog):
+"""
 
     def __init__(self, parent=None):
         super().__init__(parent)

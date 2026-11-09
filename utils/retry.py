@@ -6,9 +6,9 @@ max_retries = 2
 
 
 def retry_func(func, retries=max_retries, name=""):
-    """
-    Retry the function
-    """
+"""
+[PT-BR]     Retry the function
+"""
     for i in range(retries):
         try:
             sleep(1)

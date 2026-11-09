@@ -1,4 +1,4 @@
-# IPTV-API 文档中心
+[PT-BR] # IPTV-API 文档中心
 
 <p align="center">
   <a href="../README.md">项目首页</a> ·

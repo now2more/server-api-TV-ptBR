@@ -5,9 +5,9 @@ IPvType = Literal["ipv4", "ipv6", None]
 
 
 class ChannelData(TypedDict):
-    """
-    Channel data types, including url, date, resolution, origin and ipv_type
-    """
+"""
+[PT-BR]     Channel data types, including url, date, resolution, origin and ipv_type
+"""
     id: str
     url: str
     host: str
@@ -31,9 +31,9 @@ CategoryChannelData = dict[str, dict[str, list[ChannelData]]]
 
 
 class TestResult(TypedDict):
-    """
-    Test result types, including speed, delay, resolution
-    """
+"""
+[PT-BR]     Test result types, including speed, delay, resolution
+"""
     speed: int | float | None
     delay: int | float | None
     resolution: NotRequired[str | None]

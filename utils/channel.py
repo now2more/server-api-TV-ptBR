@@ -87,9 +87,9 @@ _CHANNEL_OUTPUT_FIELDS = (
 
 
 def _build_total_urls_signature(info_list: list[ChannelData]) -> str:
-    """
-    Build a stable signature for a channel info list.
-    """
+"""
+[PT-BR]     Build a stable signature for a channel info list.
+"""
     hasher = hashlib.sha1()
     for info in info_list or []:
         if not isinstance(info, dict):
@@ -151,9 +151,9 @@ def _get_total_urls_cached(
 
 
 def format_channel_data(url: str, origin: OriginType) -> ChannelData:
-    """
-    Format the channel data
-    """
+"""
+[PT-BR]     Format the channel data
+"""
     url_partition = url.partition("$")
     url = url_partition[0]
     info = url_partition[2]
@@ -171,9 +171,9 @@ def format_channel_data(url: str, origin: OriginType) -> ChannelData:
 
 
 def check_channel_need_frozen(info) -> bool:
-    """
-    Check if the channel need to be frozen
-    """
+"""
+[PT-BR]     Check if the channel need to be frozen
+"""
     return channel_result_rejection(
         info,
         retain_special=True,
@@ -307,9 +307,9 @@ def get_channel_data_from_file(channels, file, whitelist_maps, blacklist,
 
 
 def get_channel_items(whitelist_maps, blacklist, reporter=None) -> CategoryChannelData:
-    """
-    Get the channel items from the source file
-    """
+"""
+[PT-BR]     Get the channel items from the source file
+"""
     user_source_file = resource_path(config.source_file)
     channels = defaultdict(lambda: defaultdict(list))
     hls_data = None
@@ -419,34 +419,34 @@ def get_channel_items(whitelist_maps, blacklist, reporter=None) -> CategoryChann
 
 
 def format_channel_name(name):
-    """
-    Format the channel name with sub and replace and lower
-    """
+"""
+[PT-BR]     Format the channel name with sub and replace and lower
+"""
     return channel_alias.get_primary(name)
 
 
 def channel_name_is_equal(name1, name2):
-    """
-    Check if the channel name is equal
-    """
+"""
+[PT-BR]     Check if the channel name is equal
+"""
     name1_format = format_channel_name(name1)
     name2_format = format_channel_name(name2)
     return name1_format == name2_format
 
 
 def get_channel_results_by_name(name, data):
-    """
-    Get channel results from data by name
-    """
+"""
+[PT-BR]     Get channel results from data by name
+"""
     format_name = format_channel_name(name)
     results = data.get(format_name, [])
     return results
 
 
 def get_channel_url(text):
-    """
-    Get the url from text
-    """
+"""
+[PT-BR]     Get the url from text
+"""
     url = None
     url_search = constants.url_pattern.search(text)
     if url_search:
@@ -455,9 +455,9 @@ def get_channel_url(text):
 
 
 def init_info_data(data: dict, category: str, name: str) -> None:
-    """
-    Initialize channel info data structure if not exists
-    """
+"""
+[PT-BR]     Initialize channel info data structure if not exists
+"""
     data.setdefault(category, {}).setdefault(name, [])
 
 
@@ -664,9 +664,9 @@ def append_old_data_to_info_data(
 
 
 def print_channel_number(data: CategoryChannelData, cate: str, name: str, silent=False):
-    """
-    Print channel number
-    """
+"""
+[PT-BR]     Print channel number
+"""
     channel_list = data.get(cate, {}).get(name, [])
     if silent:
         return
@@ -797,9 +797,9 @@ def append_total_data(
 
 
 def is_valid_speed_result(info) -> bool:
-    """
-    Check if the speed test result is valid
-    """
+"""
+[PT-BR]     Check if the speed test result is valid
+"""
     return is_channel_result_valid(info)
 
 
@@ -908,8 +908,8 @@ async def test_speed(
     completed = 0
     grouped_results = {}
     completed_by_channel = defaultdict(int)
-    # This target controls quick testing only. Candidate retention and file
-    # export use separate limits.
+    # [PT-BR] This target controls quick testing only. Candidate retention and file
+    # [PT-BR] export use separate limits.
     speed_test_target = config.speed_test_target
     valid_count_by_channel = defaultdict(int)
     stopped_channels = set()
@@ -1120,9 +1120,9 @@ async def test_speed(
 
 
 def sort_channel_result(channel_data, result=None, filter_host=False, ipv6_support=True, cate=None, name=None):
-    """
-    Sort channel result
-    """
+"""
+[PT-BR]     Sort channel result
+"""
     channel_result = defaultdict(lambda: defaultdict(list))
     categories = [cate] if cate else list(channel_data.keys())
     retain = retain_origin
@@ -1185,9 +1185,9 @@ def sort_channel_result(channel_data, result=None, filter_host=False, ipv6_suppo
 
 
 def build_channel_statistic(cate, name, values):
-    """
-    Generate channel statistic
-    """
+"""
+[PT-BR]     Generate channel statistic
+"""
     total = len(values)
     valid_items = [
         v for v in values
@@ -1263,29 +1263,49 @@ def format_channel_statistic(record):
 
 
 def generate_channel_statistic(logger, cate, name, values):
-    """Compatibility wrapper for callers that still provide a standard logger."""
-    record = build_channel_statistic(cate, name, values)
-    content = format_channel_statistic(record)
-    logger.info(content)
-    return record
+"""
+[PT-BR]     record = build_channel_statistic(cate, name, values)
+
+[PT-BR]     content = format_channel_statistic(record)
+
+[PT-BR]     logger.info(content)
+
+[PT-BR]     return record
 
 
-_WRITTEN_CONTENT_DIGESTS = {}
 
 
-def process_write_content(
-        path: str,
-        data: CategoryChannelData,
-        hls_url: str = None,
-        open_empty_category: bool = False,
-        ipv_type_prefer: list[str] = None,
-        origin_type_prefer: list[str] = None,
-        first_channel_name: str = None,
-        enable_log: bool = False,
-        is_last: bool = False,
-        reporter=None,
-):
-    """
+
+[PT-BR] _WRITTEN_CONTENT_DIGESTS = {}
+
+
+
+
+
+[PT-BR] def process_write_content(
+
+[PT-BR]         path: str,
+
+[PT-BR]         data: CategoryChannelData,
+
+[PT-BR]         hls_url: str = None,
+
+[PT-BR]         open_empty_category: bool = False,
+
+[PT-BR]         ipv_type_prefer: list[str] = None,
+
+[PT-BR]         origin_type_prefer: list[str] = None,
+
+[PT-BR]         first_channel_name: str = None,
+
+[PT-BR]         enable_log: bool = False,
+
+[PT-BR]         is_last: bool = False,
+
+[PT-BR]         reporter=None,
+
+[PT-BR] ):
+"""
     Get channel write content
     :param path: write into path
     :param data: channel data

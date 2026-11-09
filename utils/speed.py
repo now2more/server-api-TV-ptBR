@@ -268,9 +268,9 @@ async def get_url_content(url: str, headers: dict = None, session: Any = None,
 
 
 def check_m3u8_valid(headers: dict) -> bool:
-    """
-    Check if the m3u8 url is valid
-    """
+"""
+[PT-BR]     Check if the m3u8 url is valid
+"""
     content_type = headers.get('Content-Type', '').lower()
     if not content_type:
         return False
@@ -292,9 +292,9 @@ def is_ad_playlist(media_playlist, base_url: str = "") -> bool:
 
 
 def _parse_time_to_seconds(t: str) -> float:
-    """
-    Parse time string to seconds
-    """
+"""
+[PT-BR]     Parse time string to seconds
+"""
     if not t:
         return 0.0
     parts = [p.strip() for p in t.split(':') if p.strip() != ""]
@@ -453,14 +453,19 @@ async def get_delay_requests(url, timeout=speed_test_timeout, proxy=None):
 
 
 def get_video_info(video_info):
-    """
-    Get the video info from ffmpeg stderr and return a dict with keys:
-      - resolution: str or None (e.g. '1280x720')
-      - fps: float or None
-      - video_codec: str or None
-      - audio_codec: str or None
-      - speed: float or None
-    """
+"""
+[PT-BR]     Get the video info from ffmpeg stderr and return a dict with keys:
+
+[PT-BR]       - resolution: str or None (e.g. '1280x720')
+
+[PT-BR]       - fps: float or None
+
+[PT-BR]       - video_codec: str or None
+
+[PT-BR]       - audio_codec: str or None
+
+[PT-BR]       - speed: float or None
+"""
     resolution = None
     fps = None
     video_codec = None
@@ -564,10 +569,11 @@ def get_video_info(video_info):
 
 
 def sample_segment_urls(segment_urls: list, limit: int) -> list:
-    """
-    Sample up to `limit` segment URLs from `segment_urls` evenly across the playlist.
-    If `limit` >= len(segment_urls) the original list is returned.
-    """
+"""
+[PT-BR]     Sample up to `limit` segment URLs from `segment_urls` evenly across the playlist.
+
+[PT-BR]     If `limit` >= len(segment_urls) the original list is returned.
+"""
     if not segment_urls:
         return []
     try:
@@ -612,9 +618,9 @@ def get_avg_result(result) -> TestResult:
 
 
 def get_speed_result(key: str) -> TestResult:
-    """
-    Get the speed result of the url
-    """
+"""
+[PT-BR]     Get the speed result of the url
+"""
     if key in cache:
         return get_avg_result(cache[key])
     else:
@@ -744,8 +750,8 @@ def get_sort_result(
 
 
 def clear_cache():
-    """
-    Clear the speed test cache
-    """
+"""
+[PT-BR]     Clear the speed test cache
+"""
     global cache
     cache = {}

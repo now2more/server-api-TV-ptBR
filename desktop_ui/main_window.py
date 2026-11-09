@@ -69,8 +69,8 @@ class MainWindow(FluentWindow):
         self._window_geometry_timer.setInterval(300)
         self._window_geometry_timer.timeout.connect(self._save_window_geometry)
         self._configure_initial_geometry()
-        # The navigation stack's pop-up animation offsets pages vertically.
-        # Keep page changes stationary so they cannot be mistaken for window resizing.
+        # [PT-BR] The navigation stack's pop-up animation offsets pages vertically.
+        # [PT-BR] Keep page changes stationary so they cannot be mistaken for window resizing.
         self.stackedWidget.setAnimationEnabled(False)
         self.navigationInterface.setIndicatorAnimationEnabled(False)
         self.navigationInterface.setReturnButtonVisible(False)
@@ -256,8 +256,8 @@ class MainWindow(FluentWindow):
 
     def _updateSystemButtonRect(self):
         if sys.platform == "darwin":
-            # AppKit already keeps the native traffic lights stable. Moving
-            # them manually makes page layout events expose two positions.
+            # [PT-BR] AppKit already keeps the native traffic lights stable. Moving
+            # [PT-BR] them manually makes page layout events expose two positions.
             return
         updater = getattr(super(), "_updateSystemButtonRect", None)
         if updater is not None:
@@ -265,9 +265,9 @@ class MainWindow(FluentWindow):
 
     def resizeEvent(self, event):
         if sys.platform == "darwin":
-            # FluentWindow first lays the title bar out at x=46. Setting the
-            # final macOS geometry directly avoids exposing that intermediate
-            # frame when a page activation produces a same-size resize event.
+            # [PT-BR] FluentWindow first lays the title bar out at x=46. Setting the
+            # [PT-BR] final macOS geometry directly avoids exposing that intermediate
+            # [PT-BR] frame when a page activation produces a same-size resize event.
             self.titleBar.setGeometry(90, 0, max(0, self.width() - 90), self.titleBar.height())
         else:
             super().resizeEvent(event)
@@ -275,69 +275,129 @@ class MainWindow(FluentWindow):
             self._window_geometry_timer.start()
 
     def switchTo(self, interface):
-        """Publish page layout and native title-bar changes in one frame."""
-        with suspend_macos_window_flush(self):
-            super().switchTo(interface)
-            if sys.platform == "darwin":
-                QApplication.sendPostedEvents()
+"""
+[PT-BR]         with suspend_macos_window_flush(self):
 
-    def moveEvent(self, event):
-        super().moveEvent(event)
-        if self.isVisible():
-            self._window_geometry_timer.start()
+[PT-BR]             super().switchTo(interface)
 
-    def _configure_initial_geometry(self):
-        screen = QApplication.primaryScreen()
-        available = screen.availableGeometry()
-        minimum_width = min(960, available.width())
-        minimum_height = min(640, available.height())
-        self.setMinimumSize(minimum_width, minimum_height)
+[PT-BR]             if sys.platform == "darwin":
 
-        saved_geometry = QSettings().value("appearance/window_geometry")
-        if saved_geometry is not None and self.restoreGeometry(saved_geometry):
-            return
+[PT-BR]                 QApplication.sendPostedEvents()
 
-        width = max(minimum_width, min(1280, round(available.width() * 0.9)))
-        height = max(minimum_height, min(800, round(available.height() * 0.9)))
-        self.resize(width, height)
-        self.move(
-            available.x() + (available.width() - width) // 2,
-            available.y() + (available.height() - height) // 2,
-        )
 
-    def _save_window_geometry(self):
-        QSettings().setValue("appearance/window_geometry", self.saveGeometry())
 
-    def toggle_theme(self):
-        self.set_dark_theme(not isDarkTheme())
+[PT-BR]     def moveEvent(self, event):
 
-    @staticmethod
-    def _language_environment_override():
-        names = ("language", "LANGUAGE", "Settings_language", "SETTINGS_LANGUAGE")
-        return any(os.getenv(name) is not None for name in names)
+[PT-BR]         super().moveEvent(event)
 
-    def toggle_language(self):
-        language = "zh_CN" if get_language().startswith("en") else "en"
-        config.set("Settings", "language", language)
-        config.save()
-        set_language(language)
-        self.retranslate()
+[PT-BR]         if self.isVisible():
 
-    def set_dark_theme(self, dark: bool):
-        setTheme(Theme.DARK if dark else Theme.LIGHT)
-        QSettings().setValue("appearance/theme", "dark" if dark else "light")
-        self._update_theme_item()
+[PT-BR]             self._window_geometry_timer.start()
 
-    def _update_theme_item(self):
-        text = t("desktop.light_mode" if isDarkTheme() else "desktop.dark_mode")
-        self.theme_item.setText(text)
 
-    def _update_language_item(self):
-        text = t("desktop.chinese" if get_language().startswith("en") else "desktop.english")
-        self.language_item.setText(text)
 
-    def _fit_navigation_width(self):
-        """Fit the expanded rail to its longest current label without wasting content space."""
+[PT-BR]     def _configure_initial_geometry(self):
+
+[PT-BR]         screen = QApplication.primaryScreen()
+
+[PT-BR]         available = screen.availableGeometry()
+
+[PT-BR]         minimum_width = min(960, available.width())
+
+[PT-BR]         minimum_height = min(640, available.height())
+
+[PT-BR]         self.setMinimumSize(minimum_width, minimum_height)
+
+
+
+[PT-BR]         saved_geometry = QSettings().value("appearance/window_geometry")
+
+[PT-BR]         if saved_geometry is not None and self.restoreGeometry(saved_geometry):
+
+[PT-BR]             return
+
+
+
+[PT-BR]         width = max(minimum_width, min(1280, round(available.width() * 0.9)))
+
+[PT-BR]         height = max(minimum_height, min(800, round(available.height() * 0.9)))
+
+[PT-BR]         self.resize(width, height)
+
+[PT-BR]         self.move(
+
+[PT-BR]             available.x() + (available.width() - width) // 2,
+
+[PT-BR]             available.y() + (available.height() - height) // 2,
+
+[PT-BR]         )
+
+
+
+[PT-BR]     def _save_window_geometry(self):
+
+[PT-BR]         QSettings().setValue("appearance/window_geometry", self.saveGeometry())
+
+
+
+[PT-BR]     def toggle_theme(self):
+
+[PT-BR]         self.set_dark_theme(not isDarkTheme())
+
+
+
+[PT-BR]     @staticmethod
+
+[PT-BR]     def _language_environment_override():
+
+[PT-BR]         names = ("language", "LANGUAGE", "Settings_language", "SETTINGS_LANGUAGE")
+
+[PT-BR]         return any(os.getenv(name) is not None for name in names)
+
+
+
+[PT-BR]     def toggle_language(self):
+
+[PT-BR]         language = "zh_CN" if get_language().startswith("en") else "en"
+
+[PT-BR]         config.set("Settings", "language", language)
+
+[PT-BR]         config.save()
+
+[PT-BR]         set_language(language)
+
+[PT-BR]         self.retranslate()
+
+
+
+[PT-BR]     def set_dark_theme(self, dark: bool):
+
+[PT-BR]         setTheme(Theme.DARK if dark else Theme.LIGHT)
+
+[PT-BR]         QSettings().setValue("appearance/theme", "dark" if dark else "light")
+
+[PT-BR]         self._update_theme_item()
+
+
+
+[PT-BR]     def _update_theme_item(self):
+
+[PT-BR]         text = t("desktop.light_mode" if isDarkTheme() else "desktop.dark_mode")
+
+[PT-BR]         self.theme_item.setText(text)
+
+
+
+[PT-BR]     def _update_language_item(self):
+
+[PT-BR]         text = t("desktop.chinese" if get_language().startswith("en") else "desktop.english")
+
+[PT-BR]         self.language_item.setText(text)
+
+
+
+[PT-BR]     def _fit_navigation_width(self):
+"""
         items = [item for item, _, _ in self._navigation_items.values()]
         items.extend((self.language_item, self.theme_item))
         longest = max(QFontMetrics(item.font()).horizontalAdvance(item.text()) for item in items)
@@ -351,716 +411,1423 @@ class MainWindow(FluentWindow):
                     item.setFixedWidth(width - 10)
 
     def _remove_navigation_tooltips(self):
-        """Remove qfluent's default hover filters and native tooltip text from the rail."""
-        items = [item for item, _, _ in self._navigation_items.values()]
-        items.extend((self.language_item, self.theme_item))
-        for item in items:
-            item.setToolTip("")
-            for child in item.children():
-                if child.__class__.__name__ == "NavigationToolTipFilter":
-                    item.removeEventFilter(child)
-                    child.deleteLater()
+"""
+[PT-BR]         items = [item for item, _, _ in self._navigation_items.values()]
 
-    def retranslate(self, _language=None):
-        navigation_items = (
-            (self.dashboard_item, "desktop.dashboard"),
-            (self.channels_item, "desktop.channel_center"),
-            (self.sources_item, "desktop.sources"),
-            (self.rtmp_item, "desktop.play_streaming"),
-            (self.logs_item, "desktop.logs"),
-            (self.tasks_item, "desktop.task_history"),
-            (self.settings_item, "desktop.settings"),
-            (self.about_item, "desktop.about"),
-        )
-        for item, key in navigation_items:
-            text = t(key)
-            item.setText(text)
-        for page in (
-            self.dashboard,
-            self.channels,
-            self.sources,
-            self.rtmp,
-            self.logs,
-            self.tasks,
-            self.settings,
-            self.about,
-        ):
-            page.retranslate()
-        if self.tray:
-            self._refresh_tray_menu()
-        self._update_language_item()
-        self._update_theme_item()
-        self._fit_navigation_width()
-        self._refresh_navigation_statuses()
+[PT-BR]         items.extend((self.language_item, self.theme_item))
 
-    def _set_navigation_status(
-            self,
-            name: str,
-            icon,
-            color: str,
-            status_key: str,
-            status_args: dict | None = None,
-            dismiss_on_visit: bool = False,
-            icon_color: str = "#FFFFFF",
-    ):
-        if name not in self._navigation_items:
-            return
-        _, _, page = self._navigation_items[name]
-        if dismiss_on_visit and self.stackedWidget.currentWidget() is page:
-            self._clear_navigation_status(name)
-            return
-        self._navigation_statuses[name] = {
-            "icon": icon,
-            "color": color,
-            "status_key": status_key,
-            "status_args": status_args or {},
-            "dismiss_on_visit": dismiss_on_visit,
-            "icon_color": icon_color,
-        }
-        self._refresh_navigation_status(name)
+[PT-BR]         for item in items:
 
-    def _clear_navigation_status(self, name: str):
-        self._navigation_statuses.pop(name, None)
-        indicator = self._navigation_indicators.get(name)
-        if indicator:
-            indicator.hide()
-        if name in self._navigation_items:
-            item, _, _ = self._navigation_items[name]
-            item.setToolTip("")
+[PT-BR]             item.setToolTip("")
 
-    def _refresh_navigation_status(self, name: str):
-        status = self._navigation_statuses.get(name)
-        if not status:
-            return
-        item, _, _ = self._navigation_items[name]
-        detail = t(status["status_key"]).format(**status["status_args"])
-        item.setToolTip("")
-        indicator = self._navigation_indicators[name]
-        indicator.setToolTip("")
-        if self.stackedWidget.currentWidget() is self._navigation_items[name][2]:
-            indicator.hide()
-        else:
-            indicator.set_status(
-                status["icon"], status["color"], status.get("icon_color", "#FFFFFF")
-            )
+[PT-BR]             for child in item.children():
 
-    def _refresh_navigation_statuses(self):
-        for name in self._navigation_statuses:
-            self._refresh_navigation_status(name)
+[PT-BR]                 if child.__class__.__name__ == "NavigationToolTipFilter":
 
-    def _navigation_page_changed(self, _index: int):
-        current = self.stackedWidget.currentWidget()
-        for name, (_, _, page) in self._navigation_items.items():
-            status = self._navigation_statuses.get(name)
-            if page is current and status and status.get("dismiss_on_visit"):
-                self._clear_navigation_status(name)
-                if name == "about":
-                    self.about.mark_update_read()
-        self._refresh_navigation_statuses()
+[PT-BR]                     item.removeEventFilter(child)
 
-    def show_and_raise(self):
-        if sys.platform == "darwin":
-            set_macos_activation_policy(False)
-        self.show()
-        self.raise_()
-        self.activateWindow()
+[PT-BR]                     child.deleteLater()
 
-    def quit_app(self):
-        if self._has_active_work() and not self._confirm_tray_action(
-            t("desktop.tray_quit_busy_title"),
-            t("desktop.tray_quit_busy_prompt"),
-        ):
-            return
-        self._force_quit = True
-        QApplication.quit()
 
-    def _create_tray_menu(self):
-        menu = QMenu(self)
-        self.tray_title_action = QAction(self)
-        self.tray_service_status_action = QAction(self)
-        self.tray_update_status_action = QAction(self)
-        self.tray_schedule_action = QAction(self)
-        self.tray_stream_status_action = QAction(self)
-        for action in (
-            self.tray_title_action,
-            self.tray_service_status_action,
-            self.tray_update_status_action,
-            self.tray_schedule_action,
-            self.tray_stream_status_action,
-        ):
-            action.setEnabled(False)
-            menu.addAction(action)
-        menu.addSeparator()
 
-        self.show_action = QAction(self)
-        self.show_action.triggered.connect(self.show_and_raise)
-        menu.addAction(self.show_action)
-        menu.setDefaultAction(self.show_action)
+[PT-BR]     def retranslate(self, _language=None):
 
-        self.tray_task_menu = QMenu(self)
-        self.tray_run_update_action = QAction(self)
-        self.tray_pause_update_action = QAction(self)
-        self.tray_resume_update_action = QAction(self)
-        self.tray_cancel_update_action = QAction(self)
-        self.tray_task_history_action = QAction(self)
-        self.tray_run_update_action.triggered.connect(self._start_update)
-        self.tray_pause_update_action.triggered.connect(self._pause_update)
-        self.tray_resume_update_action.triggered.connect(self._resume_update)
-        self.tray_cancel_update_action.triggered.connect(self._cancel_update_from_tray)
-        self.tray_task_history_action.triggered.connect(lambda: self._open_tray_page(self.tasks))
-        for action in (
-            self.tray_run_update_action,
-            self.tray_pause_update_action,
-            self.tray_resume_update_action,
-            self.tray_cancel_update_action,
-        ):
-            self.tray_task_menu.addAction(action)
-        self.tray_task_menu.addSeparator()
-        self.tray_task_menu.addAction(self.tray_task_history_action)
-        menu.addMenu(self.tray_task_menu)
+[PT-BR]         navigation_items = (
 
-        self.tray_result_menu = QMenu(self)
-        self.tray_open_results_action = QAction(self)
-        self.tray_copy_service_url_action = QAction(self)
-        self.tray_open_output_action = QAction(self)
-        self.tray_start_service_action = QAction(self)
-        self.tray_restart_service_action = QAction(self)
-        self.tray_stop_service_action = QAction(self)
-        self.tray_open_results_action.triggered.connect(
-            lambda: QDesktopServices.openUrl(QUrl(self._service_url()))
-        )
-        self.tray_copy_service_url_action.triggered.connect(self._copy_service_url_from_tray)
-        self.tray_open_output_action.triggered.connect(self.dashboard.open_output)
-        self.tray_start_service_action.triggered.connect(self._start_service_from_tray)
-        self.tray_restart_service_action.triggered.connect(self._restart_service_from_tray)
-        self.tray_stop_service_action.triggered.connect(self._stop_service_from_tray)
-        for action in (
-            self.tray_open_results_action,
-            self.tray_copy_service_url_action,
-            self.tray_open_output_action,
-        ):
-            self.tray_result_menu.addAction(action)
-        self.tray_result_menu.addSeparator()
-        for action in (
-            self.tray_start_service_action,
-            self.tray_restart_service_action,
-            self.tray_stop_service_action,
-        ):
-            self.tray_result_menu.addAction(action)
-        menu.addMenu(self.tray_result_menu)
+[PT-BR]             (self.dashboard_item, "desktop.dashboard"),
 
-        menu.addSeparator()
-        self.tray_logs_action = QAction(self)
-        self.tray_settings_action = QAction(self)
-        self.tray_logs_action.triggered.connect(lambda: self._open_tray_page(self.logs))
-        self.tray_settings_action.triggered.connect(lambda: self._open_tray_page(self.settings))
-        menu.addAction(self.tray_logs_action)
-        menu.addAction(self.tray_settings_action)
-        menu.addSeparator()
+[PT-BR]             (self.channels_item, "desktop.channel_center"),
 
-        self.quit_action = QAction(self)
-        self.quit_action.triggered.connect(self.quit_app)
-        menu.addAction(self.quit_action)
-        menu.aboutToShow.connect(self._refresh_tray_menu)
-        self.tray.setContextMenu(menu)
+[PT-BR]             (self.sources_item, "desktop.sources"),
 
-    def _refresh_tray_menu(self):
-        if not getattr(self, "tray", None):
-            return
-        self.tray_title_action.setText(
-            t("desktop.tray_title").format(version=getattr(self, "_version", "--"))
-        )
+[PT-BR]             (self.rtmp_item, "desktop.play_streaming"),
 
-        service_label = {
-            "running": t("desktop.running"),
-            "external": t("desktop.external_service"),
-            "stopped": t("desktop.stopped"),
-            "failed": t("desktop.unavailable"),
-        }.get(self._service_status, t("desktop.unknown"))
-        self.tray_service_status_action.setText(t("desktop.tray_service_status").format(
-            status=service_label,
-        ))
+[PT-BR]             (self.logs_item, "desktop.logs"),
 
-        update_key = {
-            "running": "desktop.tray_update_running",
-            "paused": "desktop.tray_update_paused",
-            "stopping": "desktop.tray_update_stopping",
-            "failed": "desktop.tray_update_failed",
-        }.get(self._update_activity_state, "desktop.tray_update_idle")
-        update_args = {"progress": self._update_progress_value}
-        self.tray_update_status_action.setText(t(update_key).format(**update_args))
-        schedule_text, schedule_detail = self._tray_schedule_text()
-        self.tray_schedule_action.setText(schedule_text)
+[PT-BR]             (self.tasks_item, "desktop.task_history"),
 
-        active_streams = max(0, int(self._rtmp_snapshot.get("active_count") or 0))
-        self.tray_stream_status_action.setVisible(active_streams > 0)
-        self.tray_stream_status_action.setText(
-            t("desktop.tray_active_streams").format(count=active_streams)
-        )
+[PT-BR]             (self.settings_item, "desktop.settings"),
 
-        is_running = self._update_activity_state == "running"
-        is_paused = self._update_activity_state == "paused"
-        is_stopping = self._update_activity_state == "stopping"
-        is_idle = not (is_running or is_paused or is_stopping)
-        self.tray_run_update_action.setVisible(is_idle)
-        self.tray_run_update_action.setEnabled(is_idle and not self.operation_controller.is_busy)
-        self.tray_pause_update_action.setVisible(is_running)
-        self.tray_resume_update_action.setVisible(is_paused)
-        self.tray_cancel_update_action.setVisible(is_running or is_paused or is_stopping)
-        self.tray_cancel_update_action.setEnabled(not is_stopping)
+[PT-BR]             (self.about_item, "desktop.about"),
 
-        service_available = self._service_status in {"running", "external"}
-        service_owned = self.service_controller.owns_process and self._service_status == "running"
-        self.tray_open_results_action.setEnabled(service_available)
-        self.tray_copy_service_url_action.setEnabled(service_available)
-        self.tray_start_service_action.setVisible(not service_available)
-        self.tray_start_service_action.setEnabled(self._service_status != "unknown")
-        self.tray_restart_service_action.setVisible(service_owned)
-        self.tray_stop_service_action.setVisible(service_owned)
-        self.tray_logs_action.setText(
-            t("desktop.tray_view_logs_error")
-            if "logs" in self._navigation_statuses
-            else t("desktop.tray_view_logs")
-        )
+[PT-BR]         )
 
-        tooltip_lines = [
-            "IPTV API",
-            t("desktop.tray_tooltip_service").format(status=service_label),
-            self.tray_update_status_action.text(),
-            schedule_detail,
-        ]
-        if active_streams:
-            tooltip_lines.append(t("desktop.tray_active_streams").format(count=active_streams))
-        self.tray.setToolTip("\n".join(tooltip_lines))
-        self._update_tray_icon()
-        self._retranslate_tray_actions()
+[PT-BR]         for item, key in navigation_items:
 
-    def _update_tray_icon(self):
-        if self._service_status == "failed" or "logs" in self._navigation_statuses:
-            color = "#DC2626"
-        elif (
-            self._update_activity_state in {"running", "paused", "stopping"}
-            or int(self._rtmp_snapshot.get("starting_count") or 0) > 0
-        ):
-            color = "#2563EB"
-        elif self._service_status not in {"running", "external"}:
-            color = "#D97706"
-        else:
-            color = "#059669"
-        pixmap = self.windowIcon().pixmap(32, 32)
-        painter = QPainter(pixmap)
-        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-        painter.setPen(Qt.PenStyle.NoPen)
-        painter.setBrush(QColor("#FFFFFF"))
-        painter.drawEllipse(20, 20, 12, 12)
-        painter.setBrush(QColor(color))
-        painter.drawEllipse(22, 22, 8, 8)
-        painter.end()
-        self.tray.setIcon(QIcon(pixmap))
+[PT-BR]             text = t(key)
 
-    def _retranslate_tray_actions(self):
-        self.show_action.setText(t("desktop.show_window"))
-        self.tray_task_menu.setTitle(t("desktop.tray_update_tasks"))
-        self.tray_run_update_action.setText(t("desktop.run_once"))
-        self.tray_pause_update_action.setText(t("desktop.pause"))
-        self.tray_resume_update_action.setText(t("desktop.resume"))
-        self.tray_cancel_update_action.setText(t("desktop.tray_cancel_update"))
-        self.tray_task_history_action.setText(t("desktop.task_history"))
-        self.tray_result_menu.setTitle(t("desktop.tray_results_service"))
-        self.tray_open_results_action.setText(t("desktop.tray_open_results"))
-        self.tray_copy_service_url_action.setText(t("desktop.tray_copy_service_url"))
-        self.tray_open_output_action.setText(t("desktop.open_output"))
-        self.tray_start_service_action.setText(t("desktop.tray_start_service"))
-        self.tray_restart_service_action.setText(t("desktop.tray_restart_service"))
-        self.tray_stop_service_action.setText(t("desktop.tray_stop_service"))
-        self.tray_settings_action.setText(t("desktop.settings"))
-        self.quit_action.setText(t("desktop.quit"))
+[PT-BR]             item.setText(text)
 
-    def _tray_schedule_text(self):
-        try:
-            next_time = next_scheduled_update()
-            if next_time is None:
-                value = t("desktop.tray_schedule_disabled")
-                return value, value
-            timezone = pytz.timezone(config.time_zone)
-            now = datetime.datetime.now(timezone)
-            next_time = next_time.astimezone(timezone)
-            delta_days = (next_time.date() - now.date()).days
-            if delta_days == 0:
-                key = "desktop.tray_next_update_today"
-                value = next_time.strftime("%H:%M")
-            elif delta_days == 1:
-                key = "desktop.tray_next_update_tomorrow"
-                value = next_time.strftime("%H:%M")
-            else:
-                key = "desktop.tray_next_update_date"
-                value = next_time.strftime("%m-%d %H:%M")
-            return (
-                t(key).format(time=value),
-                t("desktop.next_update_time").format(time=next_time.strftime("%Y-%m-%d %H:%M:%S")),
-            )
-        except Exception:
-            value = t("desktop.tray_schedule_unavailable")
-            return value, value
+[PT-BR]         for page in (
 
-    def _open_tray_page(self, page):
-        self.show_and_raise()
-        self.switchTo(page)
+[PT-BR]             self.dashboard,
 
-    def _copy_service_url_from_tray(self):
-        QGuiApplication.clipboard().setText(self._service_url())
-        self.tray.showMessage(
-            t("desktop.tray_copy_service_url"),
-            t("desktop.tray_service_url_copied"),
-            QSystemTrayIcon.MessageIcon.Information,
-            2500,
-        )
+[PT-BR]             self.channels,
 
-    def _service_port(self) -> int:
-        use_rtmp_proxy = (
-            self._service_status in {"running", "external"}
-            and bool(self._rtmp_snapshot.get("available"))
-        )
-        return config.service_port if use_rtmp_proxy else config.app_port
+[PT-BR]             self.sources,
 
-    def _service_url(self) -> str:
-        if config.public_url and self._service_status in {"running", "external"}:
-            return get_public_url()
-        return get_public_url(self._service_port())
+[PT-BR]             self.rtmp,
 
-    def _start_service_from_tray(self):
-        if self.service_controller.process is not None:
-            self.service_controller.stop()
-        self._start_service()
+[PT-BR]             self.logs,
 
-    def _update_tray_progress(self, _title, progress, _finished=False, _metadata=None, _now=None):
-        self._update_progress_value = max(0, min(100, int(progress)))
-        if not self._tray_refresh_timer.isActive():
-            self._tray_refresh_timer.start()
+[PT-BR]             self.tasks,
 
-    def _cancel_update_from_tray(self):
-        if self._confirm_tray_action(
-            t("desktop.tray_cancel_update"),
-            t("desktop.tray_cancel_update_prompt"),
-        ):
-            self._cancel_update()
+[PT-BR]             self.settings,
 
-    def _stop_service_from_tray(self):
-        if not self._confirm_tray_action(
-            t("desktop.tray_stop_service"),
-            t("desktop.tray_stop_service_prompt"),
-        ):
-            return
-        self.service_controller.stop()
-        self._service_status_changed("stopped")
+[PT-BR]             self.about,
 
-    def _restart_service_from_tray(self):
-        active_streams = max(0, int(self._rtmp_snapshot.get("active_count") or 0))
-        message = (
-            t("desktop.tray_restart_service_prompt").format(count=active_streams)
-            if active_streams
-            else t("desktop.tray_restart_service_prompt_idle")
-        )
-        if not self._confirm_tray_action(
-            t("desktop.tray_restart_service"),
-            message,
-        ):
-            return
-        self.service_controller.stop()
-        self._service_status_changed("stopped")
-        self._start_service()
+[PT-BR]         ):
 
-    def _confirm_tray_action(self, title: str, message: str):
-        result = QMessageBox.question(
-            self,
-            title,
-            message,
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-            QMessageBox.StandardButton.No,
-        )
-        return result == QMessageBox.StandardButton.Yes
+[PT-BR]             page.retranslate()
 
-    def _has_active_work(self):
-        return (
-            self._update_activity_state in {"running", "paused", "stopping"}
-            or self.operation_controller.is_busy
-            or int(self._rtmp_snapshot.get("active_count") or 0) > 0
-            or int(self._rtmp_snapshot.get("starting_count") or 0) > 0
-        )
+[PT-BR]         if self.tray:
 
-    def _navigate_from_dashboard(self, destination: str):
-        page = {
-            "channels": self.channels,
-            "rtmp": self.rtmp,
-            "sources": self.sources,
-            "tasks": self.tasks,
-        }.get(destination)
-        if page:
-            self.switchTo(page)
+[PT-BR]             self._refresh_tray_menu()
 
-    def _open_playback_workspace(self, row: dict):
-        self.rtmp.select_result(row)
-        self.switchTo(self.rtmp)
+[PT-BR]         self._update_language_item()
 
-    def _open_playback_batch(self, rows: list[dict]):
-        channel_keys = [row["channel_key"] for row in rows if row.get("channel_key")]
-        selected_count = self.rtmp.select_channels(channel_keys)
-        expected_count = len(channel_keys)
-        if selected_count < expected_count:
-            InfoBar.warning(
-                t("desktop.start_selected_streams"),
-                t("desktop.channels_without_output").format(count=expected_count - selected_count),
-                parent=self,
-                position=InfoBarPosition.TOP,
-            )
-        self.switchTo(self.rtmp)
+[PT-BR]         self._update_theme_item()
 
-    def _open_rtmp_limit_settings(self):
-        self.switchTo(self.settings)
-        self.settings.focus_setting("rtmp_max_streams")
-        InfoBar.info(
-            t("desktop.adjust_concurrency_limit"),
-            t("desktop.concurrency_limit_restart_notice"),
-            parent=self,
-            position=InfoBarPosition.TOP,
-            duration=8000,
-        )
+[PT-BR]         self._fit_navigation_width()
 
-    def _update_finished(self):
-        outcome = self.dashboard.last_update_outcome or {}
-        if self._update_activity_state == "failed":
-            self._set_update_navigation_status("failed")
-        elif self._update_activity_state == "stopping":
-            self._set_update_navigation_status("cancelled")
-        elif outcome.get("status") == "empty":
-            self._set_update_navigation_status("warning")
-            detail = " ".join(
-                part for part in (
-                    str(outcome.get("message") or "").strip(),
-                    t("desktop.update_needs_sources_detail"),
-                )
-                if part
-            )
-            InfoBar.warning(
-                t("desktop.update_needs_sources"),
-                detail,
-                parent=self,
-                position=InfoBarPosition.TOP,
-                duration=10000,
-            )
-        else:
-            self._set_update_navigation_status("completed")
-        self.dashboard.set_running(False)
-        self.dashboard.refresh_metrics()
-        self.channels.reload()
-        self.rtmp.reload_channels()
-        self.operation_controller.resume()
+[PT-BR]         self._refresh_navigation_statuses()
 
-    def _start_service(self):
-        if config.open_rtmp and not config.rtmp_available:
-            if self._install_rtmp_from_ui(start_service=True):
-                return
-            InfoBar.warning(
-                t("name.error"),
-                t("msg.rtmp_unavailable_fallback"),
-                parent=self,
-                position=InfoBarPosition.TOP,
-                duration=-1,
-            )
-        self.service_controller.start()
-        self._refresh_tray_menu()
 
-    def _install_rtmp_from_ui(self, start_service=False):
-        dialog = QDialog(self)
-        apply_dialog_theme(dialog)
-        dialog.setWindowTitle(t("name.error"))
-        dialog.setWindowIcon(self.windowIcon())
-        layout = QVBoxLayout(dialog)
-        logo = QLabel(dialog)
-        logo.setPixmap(self.windowIcon().pixmap(64, 64))
-        logo.setAlignment(Qt.AlignmentFlag.AlignHCenter)
-        message = QLabel(t("msg.rtmp_install_confirm"), dialog)
-        message.setWordWrap(True)
-        message.setAlignment(Qt.AlignmentFlag.AlignHCenter)
-        buttons = QDialogButtonBox(
-            QDialogButtonBox.StandardButton.Yes | QDialogButtonBox.StandardButton.No,
-            parent=dialog,
-        )
-        localize_dialog_buttons(buttons)
-        buttons.accepted.connect(dialog.accept)
-        buttons.rejected.connect(dialog.reject)
-        layout.addWidget(logo)
-        layout.addWidget(message)
-        layout.addWidget(buttons)
-        if dialog.exec() != QDialog.DialogCode.Accepted:
-            return False
-        self._start_service_after_rtmp_install = start_service
-        self.rtmp.set_installing(True)
-        self._append_runtime_log(f"{t('msg.rtmp_installing')}\n")
-        threading.Thread(
-            target=lambda: self.rtmp_install_finished.emit(
-                install_rtmp_runtime(self.rtmp_install_output.emit)
-            ),
-            daemon=True,
-        ).start()
-        return True
 
-    def _finish_rtmp_install(self, result: dict):
-        self.rtmp.set_installing(False)
-        if result.get("available"):
-            self._append_runtime_log(f"{t('msg.rtmp_install_success')}\n")
-            InfoBar.success(
-                t("desktop.rtmp_service"),
-                t("msg.rtmp_install_success"),
-                parent=self,
-                position=InfoBarPosition.TOP,
-            )
-        else:
-            self._mark_logs_error()
-            info = result.get("output") or t(
-                f"msg.rtmp_{result.get('error_code')}", result.get("error_code")
-            ) or t("desktop.unknown")
-            self._append_runtime_log(f"{t('msg.rtmp_install_failed').format(info=info[-1000:])}\n")
-            InfoBar.error(
-                t("name.error"),
-                t("msg.rtmp_install_failed").format(info=info[-1000:]),
-                parent=self,
-                position=InfoBarPosition.TOP,
-                duration=-1,
-            )
-        self.rtmp_controller.refresh()
-        if getattr(self, "_start_service_after_rtmp_install", False):
-            self._start_service_after_rtmp_install = False
-            self.service_controller.start()
-        elif result.get("available") and self.service_controller.owns_process:
-            self.service_controller.stop()
-            self.service_controller.start()
+[PT-BR]     def _set_navigation_status(
 
-    def _append_runtime_log(self, content: str):
-        self._on_runtime_output(content)
-        os.makedirs(os.path.dirname(constants.log_path), exist_ok=True)
-        with open(constants.log_path, "a", encoding="utf-8") as file:
-            file.write(content)
+[PT-BR]             self,
 
-    def _on_runtime_output(self, content: str):
-        self.logs.append_runtime(content)
+[PT-BR]             name: str,
 
-    def _mark_logs_error(self):
-        self._set_navigation_status(
-            "logs",
-            FluentIcon.CANCEL,
-            "#DC2626",
-            "desktop.nav_runtime_error",
-            dismiss_on_visit=True,
-        )
+[PT-BR]             icon,
 
-    def _service_status_changed(self, status: str):
-        self._service_status = status
-        self.dashboard.set_service_status(status)
-        if status == "failed":
-            self._mark_logs_error()
-        self._refresh_tray_menu()
+[PT-BR]             color: str,
 
-    def _update_rtmp_navigation_status(self, snapshot: dict):
-        self._rtmp_snapshot = snapshot if isinstance(snapshot, dict) else {}
-        active_count = max(0, int(snapshot.get("active_count") or 0))
-        starting_count = max(0, int(snapshot.get("starting_count") or 0))
-        if active_count:
-            self._set_navigation_status(
-                "rtmp",
-                FluentIcon.PLAY,
-                "#059669",
-                "desktop.nav_streaming",
-                {"count": active_count},
-            )
-        elif starting_count:
-            self._set_navigation_status(
-                "rtmp",
-                FluentIcon.SYNC,
-                "#2563EB",
-                "desktop.nav_stream_starting",
-                {"count": starting_count},
-            )
-        else:
-            self._clear_navigation_status("rtmp")
-        self._refresh_tray_menu()
+[PT-BR]             status_key: str,
 
-    def _update_about_navigation_status(self, state: str, payload):
-        payload = payload if isinstance(payload, dict) else {}
-        if state == "checking":
-            self._set_navigation_status(
-                "about", FluentIcon.SYNC, "#2563EB", "desktop.nav_checking_version",
-            )
-        elif state == "available":
-            if payload.get("unread"):
-                self._set_navigation_status(
-                    "about",
-                    FluentIcon.DOWNLOAD,
-                    "#059669",
-                    "desktop.nav_version_available",
-                    {"version": payload.get("version", "")},
-                    dismiss_on_visit=True,
-                    icon_color="#D1FAE5",
-                )
-            else:
-                self._clear_navigation_status("about")
-        elif state == "downloading":
-            self._set_navigation_status(
-                "about", FluentIcon.DOWNLOAD, "#2563EB", "desktop.nav_downloading_update",
-            )
-        elif state == "downloaded":
-            self._set_navigation_status(
-                "about",
-                FluentIcon.COMPLETED,
-                "#059669",
-                "desktop.nav_update_downloaded",
-                dismiss_on_visit=True,
-            )
-        elif state == "failed":
-            self._set_navigation_status(
-                "about",
-                FluentIcon.CANCEL,
-                "#DC2626",
-                "desktop.nav_version_check_failed",
-                dismiss_on_visit=True,
-            )
-        else:
-            self._clear_navigation_status("about")
+[PT-BR]             status_args: dict | None = None,
 
-    def _show_update_notification(self, payload: dict):
-        if self.stackedWidget.currentWidget() is self.about:
-            self.about.mark_update_read()
-            return
-        version = str(payload.get("version") or "")
-        dialog = QDialog(self)
-        dialog.setWindowTitle(t("desktop.update_available_dialog_title"))
-        dialog.setMinimumWidth(360)
-        apply_dialog_theme(dialog)
-        layout = QVBoxLayout(dialog)
-        layout.setContentsMargins(22, 20, 22, 18)
-        layout.setSpacing(18)
-        message_layout = QHBoxLayout()
-        message_layout.setSpacing(14)
-        icon = QLabel(dialog)
-        icon.setPixmap(_update_notification_icon())
-        icon.setFixedSize(40, 40)
-        message = QLabel(t("desktop.update_available_dialog_body").format(version=version), dialog)
-        message.setWordWrap(True)
-        message.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
-        message.setStyleSheet("font-weight: 600;")
-        message_layout.addWidget(icon, 0, Qt.AlignmentFlag.AlignVCenter)
-        message_layout.addWidget(message, 1, Qt.AlignmentFlag.AlignVCenter)
-        actions = QHBoxLayout()
-        actions.addStretch(1)
-        ignore_button = QPushButton(t("desktop.ignore_update"), dialog)
-        upgrade_button = QPushButton(t("desktop.upgrade_now"), dialog)
-        ignore_button.setObjectName("updateIgnoreButton")
-        upgrade_button.setObjectName("updateUpgradeButton")
-        upgrade_button.setDefault(True)
-        secondary_background = "#373737" if isDarkTheme() else "#E5E7EB"
-        secondary_hover = "#4A4A4A" if isDarkTheme() else "#D1D5DB"
-        secondary_foreground = "#F3F4F6" if isDarkTheme() else "#1F2937"
-        ignore_button.setStyleSheet(f"""
+[PT-BR]             dismiss_on_visit: bool = False,
+
+[PT-BR]             icon_color: str = "#FFFFFF",
+
+[PT-BR]     ):
+
+[PT-BR]         if name not in self._navigation_items:
+
+[PT-BR]             return
+
+[PT-BR]         _, _, page = self._navigation_items[name]
+
+[PT-BR]         if dismiss_on_visit and self.stackedWidget.currentWidget() is page:
+
+[PT-BR]             self._clear_navigation_status(name)
+
+[PT-BR]             return
+
+[PT-BR]         self._navigation_statuses[name] = {
+
+[PT-BR]             "icon": icon,
+
+[PT-BR]             "color": color,
+
+[PT-BR]             "status_key": status_key,
+
+[PT-BR]             "status_args": status_args or {},
+
+[PT-BR]             "dismiss_on_visit": dismiss_on_visit,
+
+[PT-BR]             "icon_color": icon_color,
+
+[PT-BR]         }
+
+[PT-BR]         self._refresh_navigation_status(name)
+
+
+
+[PT-BR]     def _clear_navigation_status(self, name: str):
+
+[PT-BR]         self._navigation_statuses.pop(name, None)
+
+[PT-BR]         indicator = self._navigation_indicators.get(name)
+
+[PT-BR]         if indicator:
+
+[PT-BR]             indicator.hide()
+
+[PT-BR]         if name in self._navigation_items:
+
+[PT-BR]             item, _, _ = self._navigation_items[name]
+
+[PT-BR]             item.setToolTip("")
+
+
+
+[PT-BR]     def _refresh_navigation_status(self, name: str):
+
+[PT-BR]         status = self._navigation_statuses.get(name)
+
+[PT-BR]         if not status:
+
+[PT-BR]             return
+
+[PT-BR]         item, _, _ = self._navigation_items[name]
+
+[PT-BR]         detail = t(status["status_key"]).format(**status["status_args"])
+
+[PT-BR]         item.setToolTip("")
+
+[PT-BR]         indicator = self._navigation_indicators[name]
+
+[PT-BR]         indicator.setToolTip("")
+
+[PT-BR]         if self.stackedWidget.currentWidget() is self._navigation_items[name][2]:
+
+[PT-BR]             indicator.hide()
+
+[PT-BR]         else:
+
+[PT-BR]             indicator.set_status(
+
+[PT-BR]                 status["icon"], status["color"], status.get("icon_color", "#FFFFFF")
+
+[PT-BR]             )
+
+
+
+[PT-BR]     def _refresh_navigation_statuses(self):
+
+[PT-BR]         for name in self._navigation_statuses:
+
+[PT-BR]             self._refresh_navigation_status(name)
+
+
+
+[PT-BR]     def _navigation_page_changed(self, _index: int):
+
+[PT-BR]         current = self.stackedWidget.currentWidget()
+
+[PT-BR]         for name, (_, _, page) in self._navigation_items.items():
+
+[PT-BR]             status = self._navigation_statuses.get(name)
+
+[PT-BR]             if page is current and status and status.get("dismiss_on_visit"):
+
+[PT-BR]                 self._clear_navigation_status(name)
+
+[PT-BR]                 if name == "about":
+
+[PT-BR]                     self.about.mark_update_read()
+
+[PT-BR]         self._refresh_navigation_statuses()
+
+
+
+[PT-BR]     def show_and_raise(self):
+
+[PT-BR]         if sys.platform == "darwin":
+
+[PT-BR]             set_macos_activation_policy(False)
+
+[PT-BR]         self.show()
+
+[PT-BR]         self.raise_()
+
+[PT-BR]         self.activateWindow()
+
+
+
+[PT-BR]     def quit_app(self):
+
+[PT-BR]         if self._has_active_work() and not self._confirm_tray_action(
+
+[PT-BR]             t("desktop.tray_quit_busy_title"),
+
+[PT-BR]             t("desktop.tray_quit_busy_prompt"),
+
+[PT-BR]         ):
+
+[PT-BR]             return
+
+[PT-BR]         self._force_quit = True
+
+[PT-BR]         QApplication.quit()
+
+
+
+[PT-BR]     def _create_tray_menu(self):
+
+[PT-BR]         menu = QMenu(self)
+
+[PT-BR]         self.tray_title_action = QAction(self)
+
+[PT-BR]         self.tray_service_status_action = QAction(self)
+
+[PT-BR]         self.tray_update_status_action = QAction(self)
+
+[PT-BR]         self.tray_schedule_action = QAction(self)
+
+[PT-BR]         self.tray_stream_status_action = QAction(self)
+
+[PT-BR]         for action in (
+
+[PT-BR]             self.tray_title_action,
+
+[PT-BR]             self.tray_service_status_action,
+
+[PT-BR]             self.tray_update_status_action,
+
+[PT-BR]             self.tray_schedule_action,
+
+[PT-BR]             self.tray_stream_status_action,
+
+[PT-BR]         ):
+
+[PT-BR]             action.setEnabled(False)
+
+[PT-BR]             menu.addAction(action)
+
+[PT-BR]         menu.addSeparator()
+
+
+
+[PT-BR]         self.show_action = QAction(self)
+
+[PT-BR]         self.show_action.triggered.connect(self.show_and_raise)
+
+[PT-BR]         menu.addAction(self.show_action)
+
+[PT-BR]         menu.setDefaultAction(self.show_action)
+
+
+
+[PT-BR]         self.tray_task_menu = QMenu(self)
+
+[PT-BR]         self.tray_run_update_action = QAction(self)
+
+[PT-BR]         self.tray_pause_update_action = QAction(self)
+
+[PT-BR]         self.tray_resume_update_action = QAction(self)
+
+[PT-BR]         self.tray_cancel_update_action = QAction(self)
+
+[PT-BR]         self.tray_task_history_action = QAction(self)
+
+[PT-BR]         self.tray_run_update_action.triggered.connect(self._start_update)
+
+[PT-BR]         self.tray_pause_update_action.triggered.connect(self._pause_update)
+
+[PT-BR]         self.tray_resume_update_action.triggered.connect(self._resume_update)
+
+[PT-BR]         self.tray_cancel_update_action.triggered.connect(self._cancel_update_from_tray)
+
+[PT-BR]         self.tray_task_history_action.triggered.connect(lambda: self._open_tray_page(self.tasks))
+
+[PT-BR]         for action in (
+
+[PT-BR]             self.tray_run_update_action,
+
+[PT-BR]             self.tray_pause_update_action,
+
+[PT-BR]             self.tray_resume_update_action,
+
+[PT-BR]             self.tray_cancel_update_action,
+
+[PT-BR]         ):
+
+[PT-BR]             self.tray_task_menu.addAction(action)
+
+[PT-BR]         self.tray_task_menu.addSeparator()
+
+[PT-BR]         self.tray_task_menu.addAction(self.tray_task_history_action)
+
+[PT-BR]         menu.addMenu(self.tray_task_menu)
+
+
+
+[PT-BR]         self.tray_result_menu = QMenu(self)
+
+[PT-BR]         self.tray_open_results_action = QAction(self)
+
+[PT-BR]         self.tray_copy_service_url_action = QAction(self)
+
+[PT-BR]         self.tray_open_output_action = QAction(self)
+
+[PT-BR]         self.tray_start_service_action = QAction(self)
+
+[PT-BR]         self.tray_restart_service_action = QAction(self)
+
+[PT-BR]         self.tray_stop_service_action = QAction(self)
+
+[PT-BR]         self.tray_open_results_action.triggered.connect(
+
+[PT-BR]             lambda: QDesktopServices.openUrl(QUrl(self._service_url()))
+
+[PT-BR]         )
+
+[PT-BR]         self.tray_copy_service_url_action.triggered.connect(self._copy_service_url_from_tray)
+
+[PT-BR]         self.tray_open_output_action.triggered.connect(self.dashboard.open_output)
+
+[PT-BR]         self.tray_start_service_action.triggered.connect(self._start_service_from_tray)
+
+[PT-BR]         self.tray_restart_service_action.triggered.connect(self._restart_service_from_tray)
+
+[PT-BR]         self.tray_stop_service_action.triggered.connect(self._stop_service_from_tray)
+
+[PT-BR]         for action in (
+
+[PT-BR]             self.tray_open_results_action,
+
+[PT-BR]             self.tray_copy_service_url_action,
+
+[PT-BR]             self.tray_open_output_action,
+
+[PT-BR]         ):
+
+[PT-BR]             self.tray_result_menu.addAction(action)
+
+[PT-BR]         self.tray_result_menu.addSeparator()
+
+[PT-BR]         for action in (
+
+[PT-BR]             self.tray_start_service_action,
+
+[PT-BR]             self.tray_restart_service_action,
+
+[PT-BR]             self.tray_stop_service_action,
+
+[PT-BR]         ):
+
+[PT-BR]             self.tray_result_menu.addAction(action)
+
+[PT-BR]         menu.addMenu(self.tray_result_menu)
+
+
+
+[PT-BR]         menu.addSeparator()
+
+[PT-BR]         self.tray_logs_action = QAction(self)
+
+[PT-BR]         self.tray_settings_action = QAction(self)
+
+[PT-BR]         self.tray_logs_action.triggered.connect(lambda: self._open_tray_page(self.logs))
+
+[PT-BR]         self.tray_settings_action.triggered.connect(lambda: self._open_tray_page(self.settings))
+
+[PT-BR]         menu.addAction(self.tray_logs_action)
+
+[PT-BR]         menu.addAction(self.tray_settings_action)
+
+[PT-BR]         menu.addSeparator()
+
+
+
+[PT-BR]         self.quit_action = QAction(self)
+
+[PT-BR]         self.quit_action.triggered.connect(self.quit_app)
+
+[PT-BR]         menu.addAction(self.quit_action)
+
+[PT-BR]         menu.aboutToShow.connect(self._refresh_tray_menu)
+
+[PT-BR]         self.tray.setContextMenu(menu)
+
+
+
+[PT-BR]     def _refresh_tray_menu(self):
+
+[PT-BR]         if not getattr(self, "tray", None):
+
+[PT-BR]             return
+
+[PT-BR]         self.tray_title_action.setText(
+
+[PT-BR]             t("desktop.tray_title").format(version=getattr(self, "_version", "--"))
+
+[PT-BR]         )
+
+
+
+[PT-BR]         service_label = {
+
+[PT-BR]             "running": t("desktop.running"),
+
+[PT-BR]             "external": t("desktop.external_service"),
+
+[PT-BR]             "stopped": t("desktop.stopped"),
+
+[PT-BR]             "failed": t("desktop.unavailable"),
+
+[PT-BR]         }.get(self._service_status, t("desktop.unknown"))
+
+[PT-BR]         self.tray_service_status_action.setText(t("desktop.tray_service_status").format(
+
+[PT-BR]             status=service_label,
+
+[PT-BR]         ))
+
+
+
+[PT-BR]         update_key = {
+
+[PT-BR]             "running": "desktop.tray_update_running",
+
+[PT-BR]             "paused": "desktop.tray_update_paused",
+
+[PT-BR]             "stopping": "desktop.tray_update_stopping",
+
+[PT-BR]             "failed": "desktop.tray_update_failed",
+
+[PT-BR]         }.get(self._update_activity_state, "desktop.tray_update_idle")
+
+[PT-BR]         update_args = {"progress": self._update_progress_value}
+
+[PT-BR]         self.tray_update_status_action.setText(t(update_key).format(**update_args))
+
+[PT-BR]         schedule_text, schedule_detail = self._tray_schedule_text()
+
+[PT-BR]         self.tray_schedule_action.setText(schedule_text)
+
+
+
+[PT-BR]         active_streams = max(0, int(self._rtmp_snapshot.get("active_count") or 0))
+
+[PT-BR]         self.tray_stream_status_action.setVisible(active_streams > 0)
+
+[PT-BR]         self.tray_stream_status_action.setText(
+
+[PT-BR]             t("desktop.tray_active_streams").format(count=active_streams)
+
+[PT-BR]         )
+
+
+
+[PT-BR]         is_running = self._update_activity_state == "running"
+
+[PT-BR]         is_paused = self._update_activity_state == "paused"
+
+[PT-BR]         is_stopping = self._update_activity_state == "stopping"
+
+[PT-BR]         is_idle = not (is_running or is_paused or is_stopping)
+
+[PT-BR]         self.tray_run_update_action.setVisible(is_idle)
+
+[PT-BR]         self.tray_run_update_action.setEnabled(is_idle and not self.operation_controller.is_busy)
+
+[PT-BR]         self.tray_pause_update_action.setVisible(is_running)
+
+[PT-BR]         self.tray_resume_update_action.setVisible(is_paused)
+
+[PT-BR]         self.tray_cancel_update_action.setVisible(is_running or is_paused or is_stopping)
+
+[PT-BR]         self.tray_cancel_update_action.setEnabled(not is_stopping)
+
+
+
+[PT-BR]         service_available = self._service_status in {"running", "external"}
+
+[PT-BR]         service_owned = self.service_controller.owns_process and self._service_status == "running"
+
+[PT-BR]         self.tray_open_results_action.setEnabled(service_available)
+
+[PT-BR]         self.tray_copy_service_url_action.setEnabled(service_available)
+
+[PT-BR]         self.tray_start_service_action.setVisible(not service_available)
+
+[PT-BR]         self.tray_start_service_action.setEnabled(self._service_status != "unknown")
+
+[PT-BR]         self.tray_restart_service_action.setVisible(service_owned)
+
+[PT-BR]         self.tray_stop_service_action.setVisible(service_owned)
+
+[PT-BR]         self.tray_logs_action.setText(
+
+[PT-BR]             t("desktop.tray_view_logs_error")
+
+[PT-BR]             if "logs" in self._navigation_statuses
+
+[PT-BR]             else t("desktop.tray_view_logs")
+
+[PT-BR]         )
+
+
+
+[PT-BR]         tooltip_lines = [
+
+[PT-BR]             "IPTV API",
+
+[PT-BR]             t("desktop.tray_tooltip_service").format(status=service_label),
+
+[PT-BR]             self.tray_update_status_action.text(),
+
+[PT-BR]             schedule_detail,
+
+[PT-BR]         ]
+
+[PT-BR]         if active_streams:
+
+[PT-BR]             tooltip_lines.append(t("desktop.tray_active_streams").format(count=active_streams))
+
+[PT-BR]         self.tray.setToolTip("\n".join(tooltip_lines))
+
+[PT-BR]         self._update_tray_icon()
+
+[PT-BR]         self._retranslate_tray_actions()
+
+
+
+[PT-BR]     def _update_tray_icon(self):
+
+[PT-BR]         if self._service_status == "failed" or "logs" in self._navigation_statuses:
+
+[PT-BR]             color = "#DC2626"
+
+[PT-BR]         elif (
+
+[PT-BR]             self._update_activity_state in {"running", "paused", "stopping"}
+
+[PT-BR]             or int(self._rtmp_snapshot.get("starting_count") or 0) > 0
+
+[PT-BR]         ):
+
+[PT-BR]             color = "#2563EB"
+
+[PT-BR]         elif self._service_status not in {"running", "external"}:
+
+[PT-BR]             color = "#D97706"
+
+[PT-BR]         else:
+
+[PT-BR]             color = "#059669"
+
+[PT-BR]         pixmap = self.windowIcon().pixmap(32, 32)
+
+[PT-BR]         painter = QPainter(pixmap)
+
+[PT-BR]         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+
+[PT-BR]         painter.setPen(Qt.PenStyle.NoPen)
+
+[PT-BR]         painter.setBrush(QColor("#FFFFFF"))
+
+[PT-BR]         painter.drawEllipse(20, 20, 12, 12)
+
+[PT-BR]         painter.setBrush(QColor(color))
+
+[PT-BR]         painter.drawEllipse(22, 22, 8, 8)
+
+[PT-BR]         painter.end()
+
+[PT-BR]         self.tray.setIcon(QIcon(pixmap))
+
+
+
+[PT-BR]     def _retranslate_tray_actions(self):
+
+[PT-BR]         self.show_action.setText(t("desktop.show_window"))
+
+[PT-BR]         self.tray_task_menu.setTitle(t("desktop.tray_update_tasks"))
+
+[PT-BR]         self.tray_run_update_action.setText(t("desktop.run_once"))
+
+[PT-BR]         self.tray_pause_update_action.setText(t("desktop.pause"))
+
+[PT-BR]         self.tray_resume_update_action.setText(t("desktop.resume"))
+
+[PT-BR]         self.tray_cancel_update_action.setText(t("desktop.tray_cancel_update"))
+
+[PT-BR]         self.tray_task_history_action.setText(t("desktop.task_history"))
+
+[PT-BR]         self.tray_result_menu.setTitle(t("desktop.tray_results_service"))
+
+[PT-BR]         self.tray_open_results_action.setText(t("desktop.tray_open_results"))
+
+[PT-BR]         self.tray_copy_service_url_action.setText(t("desktop.tray_copy_service_url"))
+
+[PT-BR]         self.tray_open_output_action.setText(t("desktop.open_output"))
+
+[PT-BR]         self.tray_start_service_action.setText(t("desktop.tray_start_service"))
+
+[PT-BR]         self.tray_restart_service_action.setText(t("desktop.tray_restart_service"))
+
+[PT-BR]         self.tray_stop_service_action.setText(t("desktop.tray_stop_service"))
+
+[PT-BR]         self.tray_settings_action.setText(t("desktop.settings"))
+
+[PT-BR]         self.quit_action.setText(t("desktop.quit"))
+
+
+
+[PT-BR]     def _tray_schedule_text(self):
+
+[PT-BR]         try:
+
+[PT-BR]             next_time = next_scheduled_update()
+
+[PT-BR]             if next_time is None:
+
+[PT-BR]                 value = t("desktop.tray_schedule_disabled")
+
+[PT-BR]                 return value, value
+
+[PT-BR]             timezone = pytz.timezone(config.time_zone)
+
+[PT-BR]             now = datetime.datetime.now(timezone)
+
+[PT-BR]             next_time = next_time.astimezone(timezone)
+
+[PT-BR]             delta_days = (next_time.date() - now.date()).days
+
+[PT-BR]             if delta_days == 0:
+
+[PT-BR]                 key = "desktop.tray_next_update_today"
+
+[PT-BR]                 value = next_time.strftime("%H:%M")
+
+[PT-BR]             elif delta_days == 1:
+
+[PT-BR]                 key = "desktop.tray_next_update_tomorrow"
+
+[PT-BR]                 value = next_time.strftime("%H:%M")
+
+[PT-BR]             else:
+
+[PT-BR]                 key = "desktop.tray_next_update_date"
+
+[PT-BR]                 value = next_time.strftime("%m-%d %H:%M")
+
+[PT-BR]             return (
+
+[PT-BR]                 t(key).format(time=value),
+
+[PT-BR]                 t("desktop.next_update_time").format(time=next_time.strftime("%Y-%m-%d %H:%M:%S")),
+
+[PT-BR]             )
+
+[PT-BR]         except Exception:
+
+[PT-BR]             value = t("desktop.tray_schedule_unavailable")
+
+[PT-BR]             return value, value
+
+
+
+[PT-BR]     def _open_tray_page(self, page):
+
+[PT-BR]         self.show_and_raise()
+
+[PT-BR]         self.switchTo(page)
+
+
+
+[PT-BR]     def _copy_service_url_from_tray(self):
+
+[PT-BR]         QGuiApplication.clipboard().setText(self._service_url())
+
+[PT-BR]         self.tray.showMessage(
+
+[PT-BR]             t("desktop.tray_copy_service_url"),
+
+[PT-BR]             t("desktop.tray_service_url_copied"),
+
+[PT-BR]             QSystemTrayIcon.MessageIcon.Information,
+
+[PT-BR]             2500,
+
+[PT-BR]         )
+
+
+
+[PT-BR]     def _service_port(self) -> int:
+
+[PT-BR]         use_rtmp_proxy = (
+
+[PT-BR]             self._service_status in {"running", "external"}
+
+[PT-BR]             and bool(self._rtmp_snapshot.get("available"))
+
+[PT-BR]         )
+
+[PT-BR]         return config.service_port if use_rtmp_proxy else config.app_port
+
+
+
+[PT-BR]     def _service_url(self) -> str:
+
+[PT-BR]         if config.public_url and self._service_status in {"running", "external"}:
+
+[PT-BR]             return get_public_url()
+
+[PT-BR]         return get_public_url(self._service_port())
+
+
+
+[PT-BR]     def _start_service_from_tray(self):
+
+[PT-BR]         if self.service_controller.process is not None:
+
+[PT-BR]             self.service_controller.stop()
+
+[PT-BR]         self._start_service()
+
+
+
+[PT-BR]     def _update_tray_progress(self, _title, progress, _finished=False, _metadata=None, _now=None):
+
+[PT-BR]         self._update_progress_value = max(0, min(100, int(progress)))
+
+[PT-BR]         if not self._tray_refresh_timer.isActive():
+
+[PT-BR]             self._tray_refresh_timer.start()
+
+
+
+[PT-BR]     def _cancel_update_from_tray(self):
+
+[PT-BR]         if self._confirm_tray_action(
+
+[PT-BR]             t("desktop.tray_cancel_update"),
+
+[PT-BR]             t("desktop.tray_cancel_update_prompt"),
+
+[PT-BR]         ):
+
+[PT-BR]             self._cancel_update()
+
+
+
+[PT-BR]     def _stop_service_from_tray(self):
+
+[PT-BR]         if not self._confirm_tray_action(
+
+[PT-BR]             t("desktop.tray_stop_service"),
+
+[PT-BR]             t("desktop.tray_stop_service_prompt"),
+
+[PT-BR]         ):
+
+[PT-BR]             return
+
+[PT-BR]         self.service_controller.stop()
+
+[PT-BR]         self._service_status_changed("stopped")
+
+
+
+[PT-BR]     def _restart_service_from_tray(self):
+
+[PT-BR]         active_streams = max(0, int(self._rtmp_snapshot.get("active_count") or 0))
+
+[PT-BR]         message = (
+
+[PT-BR]             t("desktop.tray_restart_service_prompt").format(count=active_streams)
+
+[PT-BR]             if active_streams
+
+[PT-BR]             else t("desktop.tray_restart_service_prompt_idle")
+
+[PT-BR]         )
+
+[PT-BR]         if not self._confirm_tray_action(
+
+[PT-BR]             t("desktop.tray_restart_service"),
+
+[PT-BR]             message,
+
+[PT-BR]         ):
+
+[PT-BR]             return
+
+[PT-BR]         self.service_controller.stop()
+
+[PT-BR]         self._service_status_changed("stopped")
+
+[PT-BR]         self._start_service()
+
+
+
+[PT-BR]     def _confirm_tray_action(self, title: str, message: str):
+
+[PT-BR]         result = QMessageBox.question(
+
+[PT-BR]             self,
+
+[PT-BR]             title,
+
+[PT-BR]             message,
+
+[PT-BR]             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+
+[PT-BR]             QMessageBox.StandardButton.No,
+
+[PT-BR]         )
+
+[PT-BR]         return result == QMessageBox.StandardButton.Yes
+
+
+
+[PT-BR]     def _has_active_work(self):
+
+[PT-BR]         return (
+
+[PT-BR]             self._update_activity_state in {"running", "paused", "stopping"}
+
+[PT-BR]             or self.operation_controller.is_busy
+
+[PT-BR]             or int(self._rtmp_snapshot.get("active_count") or 0) > 0
+
+[PT-BR]             or int(self._rtmp_snapshot.get("starting_count") or 0) > 0
+
+[PT-BR]         )
+
+
+
+[PT-BR]     def _navigate_from_dashboard(self, destination: str):
+
+[PT-BR]         page = {
+
+[PT-BR]             "channels": self.channels,
+
+[PT-BR]             "rtmp": self.rtmp,
+
+[PT-BR]             "sources": self.sources,
+
+[PT-BR]             "tasks": self.tasks,
+
+[PT-BR]         }.get(destination)
+
+[PT-BR]         if page:
+
+[PT-BR]             self.switchTo(page)
+
+
+
+[PT-BR]     def _open_playback_workspace(self, row: dict):
+
+[PT-BR]         self.rtmp.select_result(row)
+
+[PT-BR]         self.switchTo(self.rtmp)
+
+
+
+[PT-BR]     def _open_playback_batch(self, rows: list[dict]):
+
+[PT-BR]         channel_keys = [row["channel_key"] for row in rows if row.get("channel_key")]
+
+[PT-BR]         selected_count = self.rtmp.select_channels(channel_keys)
+
+[PT-BR]         expected_count = len(channel_keys)
+
+[PT-BR]         if selected_count < expected_count:
+
+[PT-BR]             InfoBar.warning(
+
+[PT-BR]                 t("desktop.start_selected_streams"),
+
+[PT-BR]                 t("desktop.channels_without_output").format(count=expected_count - selected_count),
+
+[PT-BR]                 parent=self,
+
+[PT-BR]                 position=InfoBarPosition.TOP,
+
+[PT-BR]             )
+
+[PT-BR]         self.switchTo(self.rtmp)
+
+
+
+[PT-BR]     def _open_rtmp_limit_settings(self):
+
+[PT-BR]         self.switchTo(self.settings)
+
+[PT-BR]         self.settings.focus_setting("rtmp_max_streams")
+
+[PT-BR]         InfoBar.info(
+
+[PT-BR]             t("desktop.adjust_concurrency_limit"),
+
+[PT-BR]             t("desktop.concurrency_limit_restart_notice"),
+
+[PT-BR]             parent=self,
+
+[PT-BR]             position=InfoBarPosition.TOP,
+
+[PT-BR]             duration=8000,
+
+[PT-BR]         )
+
+
+
+[PT-BR]     def _update_finished(self):
+
+[PT-BR]         outcome = self.dashboard.last_update_outcome or {}
+
+[PT-BR]         if self._update_activity_state == "failed":
+
+[PT-BR]             self._set_update_navigation_status("failed")
+
+[PT-BR]         elif self._update_activity_state == "stopping":
+
+[PT-BR]             self._set_update_navigation_status("cancelled")
+
+[PT-BR]         elif outcome.get("status") == "empty":
+
+[PT-BR]             self._set_update_navigation_status("warning")
+
+[PT-BR]             detail = " ".join(
+
+[PT-BR]                 part for part in (
+
+[PT-BR]                     str(outcome.get("message") or "").strip(),
+
+[PT-BR]                     t("desktop.update_needs_sources_detail"),
+
+[PT-BR]                 )
+
+[PT-BR]                 if part
+
+[PT-BR]             )
+
+[PT-BR]             InfoBar.warning(
+
+[PT-BR]                 t("desktop.update_needs_sources"),
+
+[PT-BR]                 detail,
+
+[PT-BR]                 parent=self,
+
+[PT-BR]                 position=InfoBarPosition.TOP,
+
+[PT-BR]                 duration=10000,
+
+[PT-BR]             )
+
+[PT-BR]         else:
+
+[PT-BR]             self._set_update_navigation_status("completed")
+
+[PT-BR]         self.dashboard.set_running(False)
+
+[PT-BR]         self.dashboard.refresh_metrics()
+
+[PT-BR]         self.channels.reload()
+
+[PT-BR]         self.rtmp.reload_channels()
+
+[PT-BR]         self.operation_controller.resume()
+
+
+
+[PT-BR]     def _start_service(self):
+
+[PT-BR]         if config.open_rtmp and not config.rtmp_available:
+
+[PT-BR]             if self._install_rtmp_from_ui(start_service=True):
+
+[PT-BR]                 return
+
+[PT-BR]             InfoBar.warning(
+
+[PT-BR]                 t("name.error"),
+
+[PT-BR]                 t("msg.rtmp_unavailable_fallback"),
+
+[PT-BR]                 parent=self,
+
+[PT-BR]                 position=InfoBarPosition.TOP,
+
+[PT-BR]                 duration=-1,
+
+[PT-BR]             )
+
+[PT-BR]         self.service_controller.start()
+
+[PT-BR]         self._refresh_tray_menu()
+
+
+
+[PT-BR]     def _install_rtmp_from_ui(self, start_service=False):
+
+[PT-BR]         dialog = QDialog(self)
+
+[PT-BR]         apply_dialog_theme(dialog)
+
+[PT-BR]         dialog.setWindowTitle(t("name.error"))
+
+[PT-BR]         dialog.setWindowIcon(self.windowIcon())
+
+[PT-BR]         layout = QVBoxLayout(dialog)
+
+[PT-BR]         logo = QLabel(dialog)
+
+[PT-BR]         logo.setPixmap(self.windowIcon().pixmap(64, 64))
+
+[PT-BR]         logo.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+
+[PT-BR]         message = QLabel(t("msg.rtmp_install_confirm"), dialog)
+
+[PT-BR]         message.setWordWrap(True)
+
+[PT-BR]         message.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+
+[PT-BR]         buttons = QDialogButtonBox(
+
+[PT-BR]             QDialogButtonBox.StandardButton.Yes | QDialogButtonBox.StandardButton.No,
+
+[PT-BR]             parent=dialog,
+
+[PT-BR]         )
+
+[PT-BR]         localize_dialog_buttons(buttons)
+
+[PT-BR]         buttons.accepted.connect(dialog.accept)
+
+[PT-BR]         buttons.rejected.connect(dialog.reject)
+
+[PT-BR]         layout.addWidget(logo)
+
+[PT-BR]         layout.addWidget(message)
+
+[PT-BR]         layout.addWidget(buttons)
+
+[PT-BR]         if dialog.exec() != QDialog.DialogCode.Accepted:
+
+[PT-BR]             return False
+
+[PT-BR]         self._start_service_after_rtmp_install = start_service
+
+[PT-BR]         self.rtmp.set_installing(True)
+
+[PT-BR]         self._append_runtime_log(f"{t('msg.rtmp_installing')}\n")
+
+[PT-BR]         threading.Thread(
+
+[PT-BR]             target=lambda: self.rtmp_install_finished.emit(
+
+[PT-BR]                 install_rtmp_runtime(self.rtmp_install_output.emit)
+
+[PT-BR]             ),
+
+[PT-BR]             daemon=True,
+
+[PT-BR]         ).start()
+
+[PT-BR]         return True
+
+
+
+[PT-BR]     def _finish_rtmp_install(self, result: dict):
+
+[PT-BR]         self.rtmp.set_installing(False)
+
+[PT-BR]         if result.get("available"):
+
+[PT-BR]             self._append_runtime_log(f"{t('msg.rtmp_install_success')}\n")
+
+[PT-BR]             InfoBar.success(
+
+[PT-BR]                 t("desktop.rtmp_service"),
+
+[PT-BR]                 t("msg.rtmp_install_success"),
+
+[PT-BR]                 parent=self,
+
+[PT-BR]                 position=InfoBarPosition.TOP,
+
+[PT-BR]             )
+
+[PT-BR]         else:
+
+[PT-BR]             self._mark_logs_error()
+
+[PT-BR]             info = result.get("output") or t(
+
+[PT-BR]                 f"msg.rtmp_{result.get('error_code')}", result.get("error_code")
+
+[PT-BR]             ) or t("desktop.unknown")
+
+[PT-BR]             self._append_runtime_log(f"{t('msg.rtmp_install_failed').format(info=info[-1000:])}\n")
+
+[PT-BR]             InfoBar.error(
+
+[PT-BR]                 t("name.error"),
+
+[PT-BR]                 t("msg.rtmp_install_failed").format(info=info[-1000:]),
+
+[PT-BR]                 parent=self,
+
+[PT-BR]                 position=InfoBarPosition.TOP,
+
+[PT-BR]                 duration=-1,
+
+[PT-BR]             )
+
+[PT-BR]         self.rtmp_controller.refresh()
+
+[PT-BR]         if getattr(self, "_start_service_after_rtmp_install", False):
+
+[PT-BR]             self._start_service_after_rtmp_install = False
+
+[PT-BR]             self.service_controller.start()
+
+[PT-BR]         elif result.get("available") and self.service_controller.owns_process:
+
+[PT-BR]             self.service_controller.stop()
+
+[PT-BR]             self.service_controller.start()
+
+
+
+[PT-BR]     def _append_runtime_log(self, content: str):
+
+[PT-BR]         self._on_runtime_output(content)
+
+[PT-BR]         os.makedirs(os.path.dirname(constants.log_path), exist_ok=True)
+
+[PT-BR]         with open(constants.log_path, "a", encoding="utf-8") as file:
+
+[PT-BR]             file.write(content)
+
+
+
+[PT-BR]     def _on_runtime_output(self, content: str):
+
+[PT-BR]         self.logs.append_runtime(content)
+
+
+
+[PT-BR]     def _mark_logs_error(self):
+
+[PT-BR]         self._set_navigation_status(
+
+[PT-BR]             "logs",
+
+[PT-BR]             FluentIcon.CANCEL,
+
+[PT-BR]             "#DC2626",
+
+[PT-BR]             "desktop.nav_runtime_error",
+
+[PT-BR]             dismiss_on_visit=True,
+
+[PT-BR]         )
+
+
+
+[PT-BR]     def _service_status_changed(self, status: str):
+
+[PT-BR]         self._service_status = status
+
+[PT-BR]         self.dashboard.set_service_status(status)
+
+[PT-BR]         if status == "failed":
+
+[PT-BR]             self._mark_logs_error()
+
+[PT-BR]         self._refresh_tray_menu()
+
+
+
+[PT-BR]     def _update_rtmp_navigation_status(self, snapshot: dict):
+
+[PT-BR]         self._rtmp_snapshot = snapshot if isinstance(snapshot, dict) else {}
+
+[PT-BR]         active_count = max(0, int(snapshot.get("active_count") or 0))
+
+[PT-BR]         starting_count = max(0, int(snapshot.get("starting_count") or 0))
+
+[PT-BR]         if active_count:
+
+[PT-BR]             self._set_navigation_status(
+
+[PT-BR]                 "rtmp",
+
+[PT-BR]                 FluentIcon.PLAY,
+
+[PT-BR]                 "#059669",
+
+[PT-BR]                 "desktop.nav_streaming",
+
+[PT-BR]                 {"count": active_count},
+
+[PT-BR]             )
+
+[PT-BR]         elif starting_count:
+
+[PT-BR]             self._set_navigation_status(
+
+[PT-BR]                 "rtmp",
+
+[PT-BR]                 FluentIcon.SYNC,
+
+[PT-BR]                 "#2563EB",
+
+[PT-BR]                 "desktop.nav_stream_starting",
+
+[PT-BR]                 {"count": starting_count},
+
+[PT-BR]             )
+
+[PT-BR]         else:
+
+[PT-BR]             self._clear_navigation_status("rtmp")
+
+[PT-BR]         self._refresh_tray_menu()
+
+
+
+[PT-BR]     def _update_about_navigation_status(self, state: str, payload):
+
+[PT-BR]         payload = payload if isinstance(payload, dict) else {}
+
+[PT-BR]         if state == "checking":
+
+[PT-BR]             self._set_navigation_status(
+
+[PT-BR]                 "about", FluentIcon.SYNC, "#2563EB", "desktop.nav_checking_version",
+
+[PT-BR]             )
+
+[PT-BR]         elif state == "available":
+
+[PT-BR]             if payload.get("unread"):
+
+[PT-BR]                 self._set_navigation_status(
+
+[PT-BR]                     "about",
+
+[PT-BR]                     FluentIcon.DOWNLOAD,
+
+[PT-BR]                     "#059669",
+
+[PT-BR]                     "desktop.nav_version_available",
+
+[PT-BR]                     {"version": payload.get("version", "")},
+
+[PT-BR]                     dismiss_on_visit=True,
+
+[PT-BR]                     icon_color="#D1FAE5",
+
+[PT-BR]                 )
+
+[PT-BR]             else:
+
+[PT-BR]                 self._clear_navigation_status("about")
+
+[PT-BR]         elif state == "downloading":
+
+[PT-BR]             self._set_navigation_status(
+
+[PT-BR]                 "about", FluentIcon.DOWNLOAD, "#2563EB", "desktop.nav_downloading_update",
+
+[PT-BR]             )
+
+[PT-BR]         elif state == "downloaded":
+
+[PT-BR]             self._set_navigation_status(
+
+[PT-BR]                 "about",
+
+[PT-BR]                 FluentIcon.COMPLETED,
+
+[PT-BR]                 "#059669",
+
+[PT-BR]                 "desktop.nav_update_downloaded",
+
+[PT-BR]                 dismiss_on_visit=True,
+
+[PT-BR]             )
+
+[PT-BR]         elif state == "failed":
+
+[PT-BR]             self._set_navigation_status(
+
+[PT-BR]                 "about",
+
+[PT-BR]                 FluentIcon.CANCEL,
+
+[PT-BR]                 "#DC2626",
+
+[PT-BR]                 "desktop.nav_version_check_failed",
+
+[PT-BR]                 dismiss_on_visit=True,
+
+[PT-BR]             )
+
+[PT-BR]         else:
+
+[PT-BR]             self._clear_navigation_status("about")
+
+
+
+[PT-BR]     def _show_update_notification(self, payload: dict):
+
+[PT-BR]         if self.stackedWidget.currentWidget() is self.about:
+
+[PT-BR]             self.about.mark_update_read()
+
+[PT-BR]             return
+
+[PT-BR]         version = str(payload.get("version") or "")
+
+[PT-BR]         dialog = QDialog(self)
+
+[PT-BR]         dialog.setWindowTitle(t("desktop.update_available_dialog_title"))
+
+[PT-BR]         dialog.setMinimumWidth(360)
+
+[PT-BR]         apply_dialog_theme(dialog)
+
+[PT-BR]         layout = QVBoxLayout(dialog)
+
+[PT-BR]         layout.setContentsMargins(22, 20, 22, 18)
+
+[PT-BR]         layout.setSpacing(18)
+
+[PT-BR]         message_layout = QHBoxLayout()
+
+[PT-BR]         message_layout.setSpacing(14)
+
+[PT-BR]         icon = QLabel(dialog)
+
+[PT-BR]         icon.setPixmap(_update_notification_icon())
+
+[PT-BR]         icon.setFixedSize(40, 40)
+
+[PT-BR]         message = QLabel(t("desktop.update_available_dialog_body").format(version=version), dialog)
+
+[PT-BR]         message.setWordWrap(True)
+
+[PT-BR]         message.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+
+[PT-BR]         message.setStyleSheet("font-weight: 600;")
+
+[PT-BR]         message_layout.addWidget(icon, 0, Qt.AlignmentFlag.AlignVCenter)
+
+[PT-BR]         message_layout.addWidget(message, 1, Qt.AlignmentFlag.AlignVCenter)
+
+[PT-BR]         actions = QHBoxLayout()
+
+[PT-BR]         actions.addStretch(1)
+
+[PT-BR]         ignore_button = QPushButton(t("desktop.ignore_update"), dialog)
+
+[PT-BR]         upgrade_button = QPushButton(t("desktop.upgrade_now"), dialog)
+
+[PT-BR]         ignore_button.setObjectName("updateIgnoreButton")
+
+[PT-BR]         upgrade_button.setObjectName("updateUpgradeButton")
+
+[PT-BR]         upgrade_button.setDefault(True)
+
+[PT-BR]         secondary_background = "#373737" if isDarkTheme() else "#E5E7EB"
+
+[PT-BR]         secondary_hover = "#4A4A4A" if isDarkTheme() else "#D1D5DB"
+
+[PT-BR]         secondary_foreground = "#F3F4F6" if isDarkTheme() else "#1F2937"
+"""
             QPushButton {{
                 background-color: {secondary_background};
                 border: 1px solid transparent;

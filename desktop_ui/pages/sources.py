@@ -214,9 +214,9 @@ class SourceEditor(QWidget):
 
     @staticmethod
     def _apply_category_tree_surface(tree):
-        """Keep the category list inside its rounded card rather than a white viewport."""
-        tree.setStyleSheet(
-            """
+"""
+[PT-BR]         tree.setStyleSheet(
+"""
             QTreeWidget, QTreeWidget::viewport { background-color: transparent; border: none; }
             QTreeWidget::item, QTreeWidget::item:selected { background-color: transparent; margin: 0; }
             """

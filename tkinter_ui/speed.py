@@ -7,9 +7,9 @@ from utils.i18n import t
 
 class SpeedUI:
     def init_ui(self, root=None):
-        """
-        Init speed UI
-        """
+"""
+[PT-BR]         Init speed UI
+"""
         frame_default_sort = tk.Frame(root)
         frame_default_sort.pack(fill=tk.X)
         frame_default_sort_column1 = tk.Frame(frame_default_sort)

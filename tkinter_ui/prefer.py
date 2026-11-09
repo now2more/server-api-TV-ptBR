@@ -6,9 +6,9 @@ from utils.config import config
 
 class PreferUI:
     def init_ui(self, root=None):
-        """
-        Init prefer UI
-        """
+"""
+[PT-BR]         Init prefer UI
+"""
         frame_location_isp = tk.Frame(root)
         frame_location_isp.pack(fill=tk.X)
         frame_location_isp_column1 = tk.Frame(frame_location_isp)

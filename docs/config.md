@@ -1,4 +1,4 @@
-# 配置参数
+[PT-BR] # 配置参数
 
 <p align="center">
   <a href="../README.md">项目首页</a> ·

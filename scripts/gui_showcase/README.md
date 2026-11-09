@@ -1,4 +1,4 @@
-# GUI showcase screenshots
+[PT-BR] # GUI showcase screenshots
 
 This directory contains deterministic documentation-only tooling for the
 desktop GUI screenshots. It is excluded from Docker images and must not be

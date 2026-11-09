@@ -221,8 +221,8 @@ def capture_language(language: str, output_dir: Path, theme: str = "light") -> i
         window.dashboard.set_stream_snapshot(snapshot)
         window.channels.set_stream_snapshot(snapshot)
         window._update_rtmp_navigation_status(snapshot)
-        # Put only the dashboard into its running visual state. Do not call
-        # run_once(): showcase screenshots must never start real update work.
+        # [PT-BR] Put only the dashboard into its running visual state. Do not call
+        # [PT-BR] run_once(): showcase screenshots must never start real update work.
         window.dashboard.set_running(True)
         window.dashboard.progress.setValue(64)
         window.dashboard.progress_title.setText(
@@ -305,7 +305,7 @@ def capture_language(language: str, output_dir: Path, theme: str = "light") -> i
                 _activate_macos_application()
                 window.raise_()
                 window.activateWindow()
-                # Let the activity/glass animation paint at least one frame.
+                # [PT-BR] Let the activity/glass animation paint at least one frame.
                 QTimer.singleShot(700, finish_capture)
                 return
             if time.monotonic() >= deadline:

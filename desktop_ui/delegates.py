@@ -210,8 +210,8 @@ class ConfigValueDelegate(QStyledItemDelegate):
         if kind == "path":
             key = str(index.data(Qt.ItemDataRole.DisplayRole) or "")
             editor = SettingsPathEditor(index.data(Qt.ItemDataRole.UserRole + 2) or key, parent)
-            # The model exposes the configuration key in column 0; use it
-            # directly so source_file opens and final_file saves.
+            # [PT-BR] The model exposes the configuration key in column 0; use it
+            # [PT-BR] directly so source_file opens and final_file saves.
             editor.key = str(index.siblingAtColumn(0).data(Qt.ItemDataRole.DisplayRole))
             editor.line_edit.textChanged.connect(lambda value: index.model().setData(index, value))
             self._focus_filter.register(editor.line_edit)
@@ -275,9 +275,9 @@ class ConfigValueDelegate(QStyledItemDelegate):
                 editor.setText(text)
         else:
             text = str(value or "")
-            # textChanged writes through to the model immediately.  That emits
-            # dataChanged and calls setEditorData again, so replacing identical
-            # text here would reset the cursor to the beginning after every key.
+            # [PT-BR] textChanged writes through to the model immediately.  That emits
+            # [PT-BR] dataChanged and calls setEditorData again, so replacing identical
+            # [PT-BR] text here would reset the cursor to the beginning after every key.
             if editor.text() != text:
                 editor.setText(text)
                 editor.setCursorPosition(0)

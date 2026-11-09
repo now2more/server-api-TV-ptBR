@@ -48,8 +48,8 @@ def _install_write_fallback():
     if architecture not in _ARCHITECTURES:
         raise RuntimeError(f"Unsupported architecture for positional-write compatibility: {architecture}")
     audit_arch, syscall = _ARCHITECTURES[architecture]
-    # ALLOW leaves inherited filters in force. For an existing ERRNO denial,
-    # the newest filter supplies ENOSYS so libc can try the permitted pwrite64.
+    # [PT-BR] ALLOW leaves inherited filters in force. For an existing ERRNO denial,
+    # [PT-BR] the newest filter supplies ENOSYS so libc can try the permitted pwrite64.
     instructions = (_SockFilter * 7)(
         _SockFilter(_BPF_LD_W_ABS, 0, 0, 4),
         _SockFilter(_BPF_JMP_JEQ_K, 1, 0, audit_arch),

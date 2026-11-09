@@ -7,10 +7,11 @@ from utils.process import direct_network_env, no_window_process_kwargs
 
 
 def _parse_probe_data(data: dict) -> dict | None:
-    """
-    Parse ffprobe JSON dict and return metadata dict with keys:
-    video_codec, audio_codec, resolution, fps
-    """
+"""
+[PT-BR]     Parse ffprobe JSON dict and return metadata dict with keys:
+
+[PT-BR]     video_codec, audio_codec, resolution, fps
+"""
     if not data:
         return None
     streams = data.get('streams', [])
@@ -147,10 +148,11 @@ async def probe_url(url: str, headers: dict = None, timeout: int = 10) -> dict |
 
 
 def probe_url_sync(url: str, headers: dict = None, timeout: int = 10) -> dict | None:
-    """
-    Synchronous wrapper around ffprobe to obtain metadata for the first video and audio streams.
-    This uses subprocess.run and returns the same dict structure as the async `probe_url`.
-    """
+"""
+[PT-BR]     Synchronous wrapper around ffprobe to obtain metadata for the first video and audio streams.
+
+[PT-BR]     This uses subprocess.run and returns the same dict structure as the async `probe_url`.
+"""
     executable = resolve_ffprobe_executable()
     if not executable:
         return None

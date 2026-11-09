@@ -1,4 +1,4 @@
-# 更新日志（Changelog）
+[PT-BR] # 更新日志（Changelog）
 
 ## v3.1.0
 
